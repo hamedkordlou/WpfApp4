@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using System.IO;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.Metrics;
+using WpfApp4.Data;
 
 namespace WpfApp4
 {
@@ -45,84 +47,59 @@ namespace WpfApp4
 
         private void InitializeChart()
         {
-            //_lineSeries = new LineSeries
-            //{
-            //    Values = new ChartValues<double> { 0 }
-            //};
-
+            DataContext = this;
+            _random = new Random();
+            Labels = new List<string>();
             var values = new ChartValues<double>();
-            
-
-            // Example data, replace with your actual data
-            //labels.Add("Label 1");
-            //labels.Add("Label 2");
-            //labels.Add("Label 3");
-
-            _topLosersValues = new SeriesCollection
+            topLosersChart.Series = new SeriesCollection
             {
                 new ColumnSeries
                 {
                     Title = "24h Change",
                     Values = values,
-                    Fill = Brushes.Green,
-                    DataLabels = true, // Show data labels
-                    LabelPoint = point => $"{point.Y:F2}%" // Format for the label
+                    Fill = Brushes.Red,
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:F2}%"
                 }
             };
-
-            
-
-            cartesianChart.Series = _topLosersValues;
-
-            //cartesianChart.AxisX.Add(new Axis { Title = "Name" });
-            cartesianChart.AxisX.Add(new Axis
-            {
-                Labels = labels,
-                LabelsRotation = 90
-            });
-
-
-
-            
-            cartesianChart.AxisY.Add(new Axis { Title = "24h Change (%)" });
-
-            _random = new Random();
-            //_dataCount = 0;
-            _frameCount = 0;
         }
 
-        private void StartAnimation()
-        {
-            _timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(1000)
-            };
-            _timer.Tick += UpdateChart;
-            _timer.Start();
+        public List<string> Labels { get; set; }
+        public Func<double, string> Formatter { get; set; }
 
-            //_timer2 = new DispatcherTimer
-            //{
-            //    Interval = TimeSpan.FromMilliseconds(1)
-            //};
-            //_timer2.Tick += Timer_Tick;
-            //_timer2.Start();
+
+        private async void StartAnimation()
+        {
+            await UpdateChart();
         }
 
-        private void UpdateChart(object sender, EventArgs e)
+        private async Task UpdateChart()
         {
-            //_lineSeries.Values.Add(_random.NextDouble() * 10);
-            //_dataCount++;
 
-            ////SaveToPng(cartesianChart, $"frame_{_frameCount:D4}.png");
+            var topLosers = await new TopGainersService().GetTopLosers();
+            var values = topLosersChart.Series.First().Values;
+            foreach (var topLoser in topLosers)
+            {
+                values.Add(topLoser.usd_24h_change);
+                Labels.Add(topLoser.name);
+                UpdateLabels();
 
-            //if (_dataCount > 100) // Adjust as needed
-            //{
-            //    _timer.Stop();
-            //    CombineFramesIntoVideo();
-            //}
+                await Task.Delay(2000);
+            }
+        }
 
-            _topLosersValues.First().Values.Add(_random.NextDouble() * 10);
-            labels.Add($"lbl {_random.NextDouble() * 10}");
+        private void UpdateLabels()
+        {
+            // Update the axis labels
+            Axis axis = topLosersChart.AxisX.FirstOrDefault();
+            if (axis != null)
+            {
+                axis.Labels = Labels;
+            }
+
+            // Refresh DataContext to update the chart
+            DataContext = null;
+            DataContext = this;
         }
 
         private void Timer_Tick(object sender, EventArgs e)

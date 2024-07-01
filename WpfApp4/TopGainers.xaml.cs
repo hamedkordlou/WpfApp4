@@ -24,21 +24,16 @@ namespace WpfApp4
     /// </summary>
     public partial class TopGainers : Window
     {
-        private Random _random;
-        private int _counter;
-
         public TopGainers()
         {
             InitializeComponent();
             InitializeChart();
-
             StartAnimation();
         }
 
         private void InitializeChart()
         {
             DataContext = this;
-            _random = new Random();
             Labels = new List<string>();
             var values = new ChartValues<double>();
             topGainersChart.Series = new SeriesCollection
@@ -60,7 +55,6 @@ namespace WpfApp4
 
         private async void StartAnimation()
         {
-            _counter = 0;
             await UpdateChart();
         }
 

@@ -32,8 +32,8 @@ namespace WpfApp4
             //TopLosersWindow topLosersWindow = new TopLosersWindow();
             //topLosersWindow.Show();
 
-            //TopLosers topLosers = new TopLosers();
-            //topLosers.Show();
+            TopLosers topLosers = new TopLosers();
+            topLosers.Show();
         }
     }
 }
