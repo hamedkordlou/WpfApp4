@@ -42,8 +42,8 @@ namespace WpfApp4
 
             foreach (var gainer in topGainers)
             {
-                volumeValues.Add(gainer.USD24hVol);
-                VolumeLabels.Add(gainer.Name);
+                volumeValues.Add(gainer.usd_24h_vol);
+                VolumeLabels.Add(gainer.name);
             }
 
             VolumeFormatter = value => value.ToString("N");

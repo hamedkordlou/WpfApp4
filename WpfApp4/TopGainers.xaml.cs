@@ -24,7 +24,6 @@ namespace WpfApp4
     /// </summary>
     public partial class TopGainers : Window
     {
-        private DispatcherTimer _timer;
         private Random _random;
         private int _counter;
 
@@ -50,7 +49,7 @@ namespace WpfApp4
                     Values = values,
                     Fill = Brushes.Green,
                     DataLabels = true,
-                    LabelPoint = point => point.Y.ToString("N")
+                    LabelPoint = point => $"{point.Y:F2}%"
                 }
             };
         }
@@ -67,17 +66,16 @@ namespace WpfApp4
 
         private async Task UpdateChart()
         {
-            while (_counter < 10)
-            {
-                var values = topGainersChart.Series.First().Values;
-                values.Add(_random.NextDouble() * 10);
-                Labels.Add($"Label {_counter + 1}");
-                _counter++;
 
-                // Refresh DataContext to update the chart
+            var topGainers = await new TopGainersService().GetTopGainersAsync();
+            var values = topGainersChart.Series.First().Values;
+            foreach (var topGainer in topGainers)
+            {
+                values.Add(topGainer.usd_24h_change);
+                Labels.Add(topGainer.name);
                 UpdateLabels();
 
-                await Task.Delay(2000); // Wait for 1 second
+                await Task.Delay(2000);
             }
         }
 

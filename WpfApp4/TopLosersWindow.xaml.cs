@@ -44,8 +44,8 @@ namespace WpfApp4
 
             foreach (var loser in topLosers)
             {
-                values.Add(loser.USD24hChange);
-                Labels.Add(loser.Name);
+                values.Add(loser.usd_24h_change);
+                Labels.Add(loser.name);
             }
 
             Formatter = value => value.ToString("N");
