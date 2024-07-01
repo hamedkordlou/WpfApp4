@@ -26,12 +26,19 @@ namespace WpfApp4
     {
         private DispatcherTimer _timer;
         private Random _random;
+        private int _counter;
 
         public TopGainers()
         {
             InitializeComponent();
+            InitializeChart();
+
+            StartAnimation();
+        }
+
+        private void InitializeChart()
+        {
             DataContext = this;
-            //LoadChartDataAsync();
             _random = new Random();
             Labels = new List<string>();
             var values = new ChartValues<double>();
@@ -41,96 +48,50 @@ namespace WpfApp4
                 {
                     Title = "24h Change",
                     Values = values,
-                    Fill = Brushes.Green
+                    Fill = Brushes.Green,
+                    DataLabels = true,
+                    LabelPoint = point => point.Y.ToString("N")
                 }
             };
-
-            StartAnimation();
         }
 
         public List<string> Labels { get; set; }
         public Func<double, string> Formatter { get; set; }
 
-        private async Task LoadChartDataAsync()
+
+        private async void StartAnimation()
         {
-            var service = new TopGainersService();
-            var topGainers = await service.GetTopGainersAsync();
+            _counter = 0;
+            await UpdateChart();
+        }
 
-            var values = new ChartValues<double>();
-            Labels = new List<string>();
-
-            foreach (var gainer in topGainers)
+        private async Task UpdateChart()
+        {
+            while (_counter < 10)
             {
-                values.Add(gainer.USD24hChange);
-                Labels.Add(gainer.Name);
+                var values = topGainersChart.Series.First().Values;
+                values.Add(_random.NextDouble() * 10);
+                Labels.Add($"Label {_counter + 1}");
+                _counter++;
+
+                // Refresh DataContext to update the chart
+                UpdateLabels();
+
+                await Task.Delay(2000); // Wait for 1 second
+            }
+        }
+
+        private void UpdateLabels()
+        {
+            // Update the axis labels
+            Axis axis = topGainersChart.AxisX.FirstOrDefault();
+            if (axis != null)
+            {
+                axis.Labels = Labels;
             }
 
-            Formatter = value => value.ToString("N");
-
-            topGainersChart.Series = new SeriesCollection
-            {
-                new ColumnSeries
-                {
-                    Title = "24h Change",
-                    Values = values,
-                    Fill = Brushes.Green
-                }
-            };
-
-            DataContext = this;
-        }
-
-        private void StartAnimation()
-        {
-            _timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(1000)
-            };
-            _timer.Tick += UpdateChart;
-            _timer.Start();
-
-        }
-
-        private void UpdateChart(object sender, EventArgs e)
-        {
-            //_lineSeries.Values.Add(_random.NextDouble() * 10);
-            //_dataCount++;
-
-            ////SaveToPng(cartesianChart, $"frame_{_frameCount:D4}.png");
-
-            //if (_dataCount > 100) // Adjust as needed
-            //{
-            //    _timer.Stop();
-            //    CombineFramesIntoVideo();
-            //}
-
-            //_topLosersValues.First().Values.Add(_random.NextDouble() * 10);
-            //labels.Add($"lbl {_random.NextDouble() * 10}");
-
-            var values = new ChartValues<double>();
-            
-
-            //foreach (var gainer in topGainers)
-            //{
-            //    values.Add(gainer.USD24hChange);
-            //    Labels.Add(gainer.Name);
-            //}
-
-            Formatter = value => value.ToString("N");
-
-            //topGainersChart.Series = new SeriesCollection
-            //{
-            //    new ColumnSeries
-            //    {
-            //        Title = "24h Change",
-            //        Values = values,
-            //        Fill = Brushes.Green
-            //    }
-            //};
-
-            topGainersChart.Series.First().Values.Add(_random.NextDouble() * 10);
-            Labels.Add($"lbl {_random.NextDouble() * 10}");
-
+            // Refresh DataContext to update the chart
+            DataContext = null;
             DataContext = this;
         }
     }

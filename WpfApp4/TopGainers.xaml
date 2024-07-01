@@ -10,7 +10,11 @@
     <Grid>
         <lvc:CartesianChart Name="topGainersChart">
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Name" Labels="{Binding Labels}" />
+                <lvc:Axis Title="Name" Labels="{Binding Labels}" LabelsRotation="-45">
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="1" />
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis Title="24h Change (%)" LabelFormatter="{Binding Formatter}" />
