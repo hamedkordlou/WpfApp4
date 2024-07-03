@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApp4.Data;
+using System.Reflection.Emit;
 
 namespace WpfApp4
 {
@@ -22,41 +23,64 @@ namespace WpfApp4
     /// </summary>
     public partial class TopGainer24HourTradingVolume : Window
     {
+        public List<string> Labels { get; set; }
+        public Func<double, string> Formatter { get; set; }
+
         public TopGainer24HourTradingVolume()
         {
             InitializeComponent();
-            DataContext = this;
-            LoadVolumeChartDataAsync();
+            InitializeChart();
+            StartAnimation();
         }
 
-        public List<string> VolumeLabels { get; set; }
-        public Func<double, string> VolumeFormatter { get; set; }
-
-        private async Task LoadVolumeChartDataAsync()
+        private void InitializeChart()
         {
-            var service = new TopGainersService();
-            var topGainers = await service.GetTopGainersAsync();
-
-            var volumeValues = new ChartValues<double>();
-            VolumeLabels = new List<string>();
-
-            foreach (var gainer in topGainers)
-            {
-                volumeValues.Add(gainer.usd_24h_vol);
-                VolumeLabels.Add(gainer.name);
-            }
-
-            VolumeFormatter = value => value.ToString("N");
-
-            tradingVolumeChart.Series = new SeriesCollection
+            DataContext = this;
+            Labels = new List<string>();
+            var values = new ChartValues<double>();
+            topLosersChart.Series = new SeriesCollection
             {
                 new ColumnSeries
                 {
-                    Title = "24h Trading Volume",
-                    Values = volumeValues
+                    Title = "24h Change",
+                    Values = values,
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:F2}%"
                 }
             };
+        }
 
+        private async void StartAnimation()
+        {
+            await UpdateChart();
+        }
+
+        private async Task UpdateChart()
+        {
+
+            var topLosers = await new TopGainersService().GetTopGainersAsync();
+            var values = topLosersChart.Series.First().Values;
+            foreach (var topLoser in topLosers)
+            {
+                values.Add(topLoser.usd_24h_change);
+                Labels.Add(topLoser.name);
+                UpdateLabels();
+
+                await Task.Delay(2000);
+            }
+        }
+
+        private void UpdateLabels()
+        {
+            // Update the axis labels
+            Axis axis = topLosersChart.AxisX.FirstOrDefault();
+            if (axis != null)
+            {
+                axis.Labels = Labels;
+            }
+
+            // Refresh DataContext to update the chart
+            DataContext = null;
             DataContext = this;
         }
     }

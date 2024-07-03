@@ -17,14 +17,14 @@ namespace WpfApp4
         {
             base.OnStartup(e);
 
+            // line chart
             //var chartWindow1 = new ChartWindow1();
             //chartWindow1.Show();
 
+
+            // bar chart
             //var chartWindow2 = new ChartWindow2();
             //chartWindow2.Show();
-
-            var topGainersWindow = new TopGainers();
-            topGainersWindow.Show();
 
             //var topGainer24HourTradingVolumeWindow = new TopGainer24HourTradingVolume();
             //topGainer24HourTradingVolumeWindow.Show();
@@ -32,8 +32,17 @@ namespace WpfApp4
             //TopLosersWindow topLosersWindow = new TopLosersWindow();
             //topLosersWindow.Show();
 
-            TopLosers topLosers = new TopLosers();
-            topLosers.Show();
+
+
+
+            //var topGainers = new TopGainers();
+            //topGainers.Show();
+
+            //TopLosers topLosers = new TopLosers();
+            //topLosers.Show();
+
+            TrendingCoin1 trendingCoin1 = new TrendingCoin1();
+            trendingCoin1.Show();
         }
     }
 }
