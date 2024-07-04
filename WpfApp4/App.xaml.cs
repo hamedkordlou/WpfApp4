@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using WpfApp4.Data;
 
 namespace WpfApp4
 {
@@ -13,7 +14,7 @@ namespace WpfApp4
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -41,8 +42,15 @@ namespace WpfApp4
             //TopLosers topLosers = new TopLosers();
             //topLosers.Show();
 
+            await FetchData();
+
             TrendingCoin1 trendingCoin1 = new TrendingCoin1();
             trendingCoin1.Show();
+        }
+
+        private static async Task FetchData()
+        {
+            await TrendingService.InitializeDataAsync();
         }
     }
 }

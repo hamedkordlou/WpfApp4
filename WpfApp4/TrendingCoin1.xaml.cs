@@ -28,10 +28,6 @@ namespace WpfApp4
         {
             InitializeComponent();
 
-            StartAnimation();
-
-            
-
             cartesianChart.Series = new SeriesCollection
             {
                 new LineSeries
@@ -43,8 +39,9 @@ namespace WpfApp4
 
             cartesianChart.AxisX.Add(new Axis
             {
-                Title = "Coin Name",
-                Labels = new string[] { },
+                Title = "Time 24h",
+                //Labels = new string[] { },
+                ShowLabels = false,
                 Separator = new Separator
                 {
                     Step = 1,
@@ -54,9 +51,12 @@ namespace WpfApp4
 
             cartesianChart.AxisY.Add(new Axis
             {
-                Title = "Price Change Percentage 24h (%)",
+                Title = "Price 24h (USD)",
                 LabelFormatter = value => value.ToString("N")
+                //MinValue = 0
             });
+
+            StartAnimation();
         }
 
         private async void StartAnimation()
@@ -67,20 +67,17 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var result = await new TrendingService().GetTrendingCoinsAsync();
+            var result = TrendingService.GetTrendingCoins();
 
             var lineSeries = (LineSeries)cartesianChart.Series[0];
 
             lineSeries.Values.Clear();
-            var coinNames = new List<string>();
 
-            foreach (var market in result)
+            // Filter for hourly prices (every 12th data point for 5-minute intervals)
+            for (int i = 0; i < result[0].Count; i += 12)
             {
-                lineSeries.Values.Add(market.price_change_percentage_24h);
-                coinNames.Add(market.name);
+                lineSeries.Values.Add(result[0][i][1]);
             }
-
-            cartesianChart.AxisX[0].Labels = coinNames.ToArray();
         }
     }
 }

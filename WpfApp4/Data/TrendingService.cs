@@ -8,30 +8,39 @@ using System.Threading.Tasks;
 
 namespace WpfApp4.Data
 {
-    public class TrendingService
+    public static class TrendingService
     {
         private static readonly HttpClient client = new HttpClient();
         private const string url = "https://pro-api.coingecko.com/api/v3/search/trending?x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
 
-        private readonly List<CoinTrending> trendingCoins = new List<CoinTrending>();
+        public static List<CoinTrending> trendingCoins = new List<CoinTrending>();
+        public static List<List<List<double>>> prices = new List<List<List<double>>>();
 
-        public async Task<List<Market>> GetTrendingCoinsAsync()
+        public static async Task InitializeDataAsync()
         {
             var response = await client.GetStringAsync(url);
             PopulateCoinLists(response);
 
             var ids = trendingCoins.Select(x => x.item.id).ToList();
-            var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids={string.Join("%2C", ids)}&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
+            //var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids={string.Join("%2C", ids)}&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
 
-            //var marketUrl = "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin%2Cethereum&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
-            // get market for ids
-            response = await client.GetStringAsync(marketUrl);
-            var markets = JsonConvert.DeserializeObject<List<Market>>(response);
-
-            return markets;
+            foreach (var id in ids)
+            {
+                var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days=1&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
+                // get market for ids
+                response = await client.GetStringAsync(marketUrl);
+                PopulateCoinHistory(response);
+            }
         }
 
-        public void PopulateCoinLists(string jsonResponse)
+        
+
+        public static List<List<List<double>>> GetTrendingCoins()
+        {
+            return prices;
+        }
+
+        public static void PopulateCoinLists(string jsonResponse)
         {
             try
             {
@@ -40,6 +49,25 @@ namespace WpfApp4.Data
                 if (apiResponse != null)
                 {
                     trendingCoins.AddRange(apiResponse.coins);
+                    // add nft here
+                    // add category here
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deserializing the JSON response: {ex.Message}");
+            }
+        }
+
+        public static void PopulateCoinHistory(string jsonResponse)
+        {
+            try
+            {
+                var apiResponse = JsonConvert.DeserializeObject<CoinHistory>(jsonResponse);
+
+                if (apiResponse != null)
+                {
+                    prices.Add(apiResponse.prices);
                     // add nft here
                     // add category here
                 }
@@ -259,37 +287,12 @@ namespace WpfApp4.Data
         public List<Category> categories { get; set; }
     }
 
-
-    // Market myDeserializedClass = JsonConvert.DeserializeObject<Market>(myJsonResponse);
-    public class Market
+    // CoinHistory myDeserializedClass = JsonConvert.DeserializeObject<CoinHistory>(myJsonResponse);
+    public class CoinHistory
     {
-        public string id { get; set; }
-        public string symbol { get; set; }
-        public string name { get; set; }
-        public string image { get; set; }
-        public double current_price { get; set; }
-        public long market_cap { get; set; }
-        public int market_cap_rank { get; set; }
-        public long fully_diluted_valuation { get; set; }
-        public long total_volume { get; set; }
-        public double high_24h { get; set; }
-        public double low_24h { get; set; }
-        public double price_change_24h { get; set; }
-        public double price_change_percentage_24h { get; set; }
-        public long market_cap_change_24h { get; set; }
-        public double market_cap_change_percentage_24h { get; set; }
-        public double circulating_supply { get; set; }
-        public double total_supply { get; set; }
-        public double? max_supply { get; set; }
-        public double ath { get; set; }
-        public double ath_change_percentage { get; set; }
-        public DateTime ath_date { get; set; }
-        public double atl { get; set; }
-        public double atl_change_percentage { get; set; }
-        public DateTime atl_date { get; set; }
-        public object roi { get; set; }
-        public DateTime last_updated { get; set; }
+        public List<List<double>> prices { get; set; }
+        public List<List<double>> market_caps { get; set; }
+        public List<List<double>> total_volumes { get; set; }
     }
-
 
 }
