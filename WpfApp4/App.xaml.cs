@@ -18,6 +18,8 @@ namespace WpfApp4
         {
             base.OnStartup(e);
 
+            await FetchData();
+
             // line chart
             //var chartWindow1 = new ChartWindow1();
             //chartWindow1.Show();
@@ -27,22 +29,22 @@ namespace WpfApp4
             //var chartWindow2 = new ChartWindow2();
             //chartWindow2.Show();
 
-            //var topGainer24HourTradingVolumeWindow = new TopGainer24HourTradingVolume();
-            //topGainer24HourTradingVolumeWindow.Show();
+            //var topgainer24hourtradingvolumewindow = new topgainer24hourtradingvolume();
+            //topgainer24hourtradingvolumewindow.show();
 
-            //TopLosersWindow topLosersWindow = new TopLosersWindow();
-            //topLosersWindow.Show();
-
-
+            //toploserswindow toploserswindow = new toploserswindow();
+            //toploserswindow.show();
 
 
-            //var topGainers = new TopGainers();
-            //topGainers.Show();
 
-            //TopLosers topLosers = new TopLosers();
-            //topLosers.Show();
 
-            await FetchData();
+            var topGainers = new TopGainers();
+            topGainers.Show();
+
+            TopLosers topLosers = new TopLosers();
+            topLosers.Show();
+
+
 
             TrendingCoin1 trendingCoin1 = new TrendingCoin1();
             trendingCoin1.Show();
@@ -62,6 +64,7 @@ namespace WpfApp4
 
         private static async Task FetchData()
         {
+            await TopGainersService.InitializeDataAsync();
             await TrendingService.InitializeDataAsync();
         }
     }

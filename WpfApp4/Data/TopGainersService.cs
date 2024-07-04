@@ -10,33 +10,39 @@ using System.Threading.Tasks;
 
 namespace WpfApp4.Data
 {
-    public class TopGainersService
+    public static class TopGainersService
     {
 
         private static readonly HttpClient client = new HttpClient();
         private const string url = "https://pro-api.coingecko.com/api/v3/coins/top_gainers_losers?vs_currency=usd&duration=24h&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
 
-        private readonly List<Coin> topGainers = new List<Coin>();
-        private readonly List<Coin> topLosers = new List<Coin>();
+        public static List<Coin> topGainers = new List<Coin>();
+        public static List<Coin> topLosers = new List<Coin>();
 
-
-        public async Task<List<Coin>> GetTopGainersAsync()
+        public static async Task InitializeDataAsync()
         {
             var response = await client.GetStringAsync(url);
             PopulateCoinLists(response);
+        }
+
+
+        public static async Task<List<Coin>> GetTopGainersAsync()
+        {
+            //var response = await client.GetStringAsync(url);
+            //PopulateCoinLists(response);
 
             return topGainers.Take(10).ToList();
         }
 
-        public async Task<List<Coin>> GetTopLosers()
+        public static async Task<List<Coin>> GetTopLosers()
         {
-            var response = await client.GetStringAsync(url);
-            PopulateCoinLists(response);
+            //var response = await client.GetStringAsync(url);
+            //PopulateCoinLists(response);
 
             return topLosers.Take(10).ToList(); //.OrderBy(c => c.usd_24h_change);
         }
 
-        public void PopulateCoinLists(string jsonResponse)
+        public static void PopulateCoinLists(string jsonResponse)
         {
             try
             {
@@ -54,7 +60,7 @@ namespace WpfApp4.Data
             }
         }
 
-        public List<Coin> GetMockTopGainers()
+        public static List<Coin> GetMockTopGainers()
         {
             return new List<Coin>
             {
@@ -67,7 +73,7 @@ namespace WpfApp4.Data
             };
         }
 
-        public List<Coin> GetMockTopLosers()
+        public static List<Coin> GetMockTopLosers()
         {
             return new List<Coin>
             {

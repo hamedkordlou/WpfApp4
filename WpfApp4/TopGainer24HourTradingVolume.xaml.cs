@@ -58,7 +58,7 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var topLosers = await new TopGainersService().GetTopGainersAsync();
+            var topLosers = await TopGainersService.GetTopGainersAsync();
             var values = topLosersChart.Series.First().Values;
             foreach (var topLoser in topLosers)
             {
