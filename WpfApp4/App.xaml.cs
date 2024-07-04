@@ -64,8 +64,11 @@ namespace WpfApp4
 
         private static async Task FetchData()
         {
+            //await new LocalDataBaseService().initializeLocalDatabaseAsync();
             await TopGainersService.InitializeDataAsync();
             await TrendingService.InitializeDataAsync();
+
+            //await LocalDataBaseService.PrintMostTradedCoins();
         }
     }
 }
