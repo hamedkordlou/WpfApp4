@@ -12,4 +12,38 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="TrendingCoin5.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="TrendingCoin4.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="TrendingCoin3.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="TrendingCoin2.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="TrendingCoin5.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TrendingCoin4.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TrendingCoin3.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TrendingCoin2.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

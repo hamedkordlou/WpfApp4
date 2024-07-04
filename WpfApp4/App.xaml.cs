@@ -46,6 +46,18 @@ namespace WpfApp4
 
             TrendingCoin1 trendingCoin1 = new TrendingCoin1();
             trendingCoin1.Show();
+
+            TrendingCoin2 trendingCoin2 = new TrendingCoin2();
+            trendingCoin2.Show();
+
+            TrendingCoin3 trendingCoin3 = new TrendingCoin3();
+            trendingCoin3.Show();
+
+            TrendingCoin4 trendingCoin4 = new TrendingCoin4();
+            trendingCoin4.Show();
+
+            TrendingCoin5 trendingCoin5 = new TrendingCoin5();
+            trendingCoin5.Show();
         }
 
         private static async Task FetchData()
