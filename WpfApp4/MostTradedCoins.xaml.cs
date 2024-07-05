@@ -14,19 +14,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApp4.Data;
-using System.Reflection.Emit;
+using System.Globalization;
 
 namespace WpfApp4
 {
     /// <summary>
-    /// Interaction logic for TopGainer24HourTradingVolume.xaml
+    /// Interaction logic for MostTradedCoins.xaml
     /// </summary>
-    public partial class TopGainer24HourTradingVolume : Window
+    public partial class MostTradedCoins : Window
     {
-        public List<string> Labels { get; set; }
-        public Func<double, string> Formatter { get; set; }
-
-        public TopGainer24HourTradingVolume()
+        public MostTradedCoins()
         {
             InitializeComponent();
             InitializeChart();
@@ -38,17 +35,22 @@ namespace WpfApp4
             DataContext = this;
             Labels = new List<string>();
             var values = new ChartValues<double>();
-            topLosersChart.Series = new SeriesCollection
+            mostTradedCoinsChart.Series = new SeriesCollection
             {
                 new ColumnSeries
                 {
-                    Title = "24h Change",
+                    Title = "24h Volume",
                     Values = values,
+                    //Fill = Brushes.Green,
                     DataLabels = true,
-                    LabelPoint = point => $"{point.Y:F2}%"
+                    LabelPoint = point => point.Y.ToString("C", new CultureInfo("en-US"))
                 }
             };
         }
+
+        public List<string> Labels { get; set; }
+        public Func<double, string> Formatter { get; set; }
+
 
         private async void StartAnimation()
         {
@@ -58,12 +60,12 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var topLosers = await TopGainersService.GetTopGainersAsync();
-            var values = topLosersChart.Series.First().Values;
-            foreach (var topLoser in topLosers)
+            var mostTraded = await LocalDataBaseService.GetMostTradedCoins();
+            var values = mostTradedCoinsChart.Series.First().Values;
+            foreach (var coin in mostTraded)
             {
-                values.Add(topLoser.usd_24h_change);
-                Labels.Add(topLoser.name);
+                values.Add((double)coin.TotalVolumeUsd);
+                Labels.Add(coin.Name);
                 UpdateLabels();
 
                 await Task.Delay(2000);
@@ -73,7 +75,7 @@ namespace WpfApp4
         private void UpdateLabels()
         {
             // Update the axis labels
-            Axis axis = topLosersChart.AxisX.FirstOrDefault();
+            Axis axis = mostTradedCoinsChart.AxisX.FirstOrDefault();
             if (axis != null)
             {
                 axis.Labels = Labels;

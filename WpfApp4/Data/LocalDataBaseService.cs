@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace WpfApp4.Data
 {
@@ -18,6 +19,13 @@ namespace WpfApp4.Data
         public string Symbol { get; set; }
         public string Name { get; set; }
         public Dictionary<string, string> Platforms { get; set; }
+    }
+
+    public class MostTradedCoin
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public decimal TotalVolumeUsd { get; set; }
     }
     public class LocalDataBaseService
     {
@@ -91,7 +99,7 @@ namespace WpfApp4.Data
             Console.WriteLine("All coin data has been saved to the database.");
         }
 
-        public static async Task PrintMostTradedCoins(int topN = 10)
+        public static async Task<List<MostTradedCoin>> GetMostTradedCoins(int topN = 10)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -104,7 +112,7 @@ namespace WpfApp4.Data
                                && coin["market_data"].AsBsonDocument.Contains("total_volume")
                                && coin["market_data"]["total_volume"].AsBsonDocument.Contains("usd")
                                && !coin["market_data"]["total_volume"]["usd"].IsBsonNull)
-                .Select(coin => new
+                .Select(coin => new MostTradedCoin
                 {
                     Id = coin["id"].AsString,
                     Name = coin["name"].AsString,
@@ -115,11 +123,13 @@ namespace WpfApp4.Data
                 .ToList();
 
             // Print most traded coins
-            Console.WriteLine($"Top {topN} Most Traded Coins:");
-            foreach (var coin in mostTradedCoins)
-            {
-                Console.WriteLine($"{coin.Name} ({coin.Id}) - Trading Volume (USD): {coin.TotalVolumeUsd.ToString("C", new CultureInfo("en-US"))}");
-            }
+            //Console.WriteLine($"Top {topN} Most Traded Coins:");
+            //foreach (var coin in mostTradedCoins)
+            //{
+            //    Console.WriteLine($"{coin.Name} ({coin.Id}) - Trading Volume (USD): {coin.TotalVolumeUsd.ToString("C", new CultureInfo("en-US"))}");
+            //}
+
+            return mostTradedCoins;
         }
 
     }
