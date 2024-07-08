@@ -21,10 +21,6 @@ namespace WpfApp4
             await FetchData();
 
 
-            //var barchart = new barChart();
-            //barchart.Show();
-
-
             //var topGainers = new TopGainers();
             //topGainers.Show();
 
