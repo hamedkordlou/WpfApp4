@@ -1,12 +1,12 @@
-﻿<Window x:Class="WpfApp4.MostAddedToWatchList"
+﻿<Window x:Class="WpfApp4.barChart"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp4"
-        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="MostAddedToWatchList" Height="450" Width="800">
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Title="barChart" Height="450" Width="800">
     <Grid>
         <lvc:CartesianChart Name="cartesianChart" Margin="10">
             <lvc:CartesianChart.AxisY>

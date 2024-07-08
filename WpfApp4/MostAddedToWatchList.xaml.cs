@@ -15,75 +15,68 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApp4.Data;
 using System.Globalization;
+using Separator = LiveCharts.Wpf.Separator;
 
 namespace WpfApp4
 {
-    /// <summary>
-    /// Interaction logic for MostAddedToWatchList.xaml
-    /// </summary>
     public partial class MostAddedToWatchList : Window
     {
+
+        public SeriesCollection SeriesCollection { get; set; }
+        public List<string> Labels { get; set; }
+
+
         public MostAddedToWatchList()
         {
             InitializeComponent();
-            InitializeChart();
-            StartAnimation();
+            InitializeChartAsync();
         }
 
-        private void InitializeChart()
+        private async Task InitializeChartAsync()
         {
-            DataContext = this;
             Labels = new List<string>();
-            var values = new ChartValues<double>();
-            mostTradedCoinsChart.Series = new SeriesCollection
+
+            // Initialize SeriesCollection with empty ChartValues and enable DataLabels
+            SeriesCollection = new SeriesCollection
             {
-                new ColumnSeries
+                new RowSeries
                 {
-                    Title = "24h Volume",
-                    Values = values,
-                    //Fill = Brushes.Green,
+                    Title = "Number of Added to Watchlist",
+                    Values = new ChartValues<double>(),
                     DataLabels = true,
-                    LabelPoint = point => point.Y.ToString("N0", new CultureInfo("en-US"))
+                    LabelPoint = point => point.X.ToString("N0", new CultureInfo("en-US"))
                 }
+                //new RowSeries
+                //{
+                //    Title = "Total Volume (USD)",
+                //    Values = new ChartValues<decimal>(),
+                //    DataLabels = true
+                //}
             };
-        }
 
-        public List<string> Labels { get; set; }
-        public Func<double, string> Formatter { get; set; }
+            // Retrieve data from your service (assuming GetMostAddedToWatchlistCoins returns a collection of coins)
+            var res = await LocalDataBaseService.GetMostAddedToWatchlistCoins(10);
 
-
-        private async void StartAnimation()
-        {
-            await UpdateChart();
-        }
-
-        private async Task UpdateChart()
-        {
-
-            var mostTraded = await LocalDataBaseService.GetMostAddedToWatchlistCoins();
-            var values = mostTradedCoinsChart.Series.First().Values;
-            foreach (var coin in mostTraded)
+            // Iterate through each coin and add values to the corresponding RowSeries
+            foreach (var coin in res)
             {
-                values.Add((double)coin.WatchlistUsers);
+                // Add value to "Number of Added to Watchlist" series
+                SeriesCollection[0].Values.Add(coin.WatchlistUsers);
+
+                // Add value to "Total Volume (USD)" series
+                //SeriesCollection[1].Values.Add(coin.TotalVolumeUsd);
+
                 Labels.Add(coin.Name);
-                UpdateLabels();
-
-                await Task.Delay(2000);
-            }
-        }
-
-        private void UpdateLabels()
-        {
-            // Update the axis labels
-            Axis axis = mostTradedCoinsChart.AxisX.FirstOrDefault();
-            if (axis != null)
-            {
-                axis.Labels = Labels;
             }
 
-            // Refresh DataContext to update the chart
-            DataContext = null;
-            DataContext = this;
+            //// Example: Assigning labels based on the number of coins retrieved
+            //Labels = res.Select((coin, index) => $"Coin {index + 1}").ToList();
+
+            // Set the SeriesCollection and Labels to the chart
+            cartesianChart.Series = SeriesCollection;
+            cartesianChart.DataContext = this;
         }
+
+
     }
 }

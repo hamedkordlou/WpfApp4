@@ -21,6 +21,9 @@ namespace WpfApp4
             await FetchData();
 
 
+            //var barchart = new barChart();
+            //barchart.Show();
+
 
             //var topGainers = new TopGainers();
             //topGainers.Show();
@@ -46,8 +49,8 @@ namespace WpfApp4
             //trendingCoin5.Show();
 
 
-            var mostTraded = new MostTradedCoins();
-            mostTraded.Show();
+            //var mostTraded = new MostTradedCoins();
+            //mostTraded.Show();
 
             var mostAddedToWatchList = new MostAddedToWatchList();
             mostAddedToWatchList.Show();
@@ -59,8 +62,8 @@ namespace WpfApp4
             //await TopGainersService.InitializeDataAsync();
             //await TrendingService.InitializeDataAsync();
 
-            await LocalDataBaseService.GetMostTradedCoins();
-            await LocalDataBaseService.GetMostAddedToWatchlistCoins();
+            //await LocalDataBaseService.GetMostTradedCoins();
+            //await LocalDataBaseService.GetMostAddedToWatchlistCoins();
 
             //await LocalDataBaseService.PrintTopByROI();
             //await LocalDataBaseService.PrintCountOfCoinsAddedSinceLastNDays(1000);
