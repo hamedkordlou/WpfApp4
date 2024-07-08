@@ -54,6 +54,9 @@ namespace WpfApp4
 
             var mostAddedToWatchList = new MostAddedToWatchList();
             mostAddedToWatchList.Show();
+
+            var mostAddedToWatchListTradeInfo = new MostAddedToWatchListTradeInfo();
+            mostAddedToWatchListTradeInfo.Show();
         }
 
         private static async Task FetchData()
