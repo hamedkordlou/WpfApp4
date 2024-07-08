@@ -48,6 +48,9 @@ namespace WpfApp4
 
             var mostTraded = new MostTradedCoins();
             mostTraded.Show();
+
+            var mostAddedToWatchList = new MostAddedToWatchList();
+            mostAddedToWatchList.Show();
         }
 
         private static async Task FetchData()
@@ -56,7 +59,19 @@ namespace WpfApp4
             //await TopGainersService.InitializeDataAsync();
             //await TrendingService.InitializeDataAsync();
 
-            //await LocalDataBaseService.GetMostTradedCoins();
+            await LocalDataBaseService.GetMostTradedCoins();
+            await LocalDataBaseService.GetMostAddedToWatchlistCoins();
+
+            //await LocalDataBaseService.PrintTopByROI();
+            //await LocalDataBaseService.PrintCountOfCoinsAddedSinceLastNDays(1000);
+            //await LocalDataBaseService.PrintMostRecentCoin();
+            //await LocalDataBaseService.SelectCoinsWithATHCloseToCurrentPrice(5);
+            //await LocalDataBaseService.GetTop10PositiveSentimentCoins();
+            //await LocalDataBaseService.GetTop10NegativeSentimentCoins();
+            //await LocalDataBaseService.PrintCountOf100PercentSentimentUpVotes();
+            //await LocalDataBaseService.PrintCoinsWith100PercentSentimentUpVotes();
+            //await LocalDataBaseService.PrintMostAddedToWatchlistCoins();
+
         }
     }
 }

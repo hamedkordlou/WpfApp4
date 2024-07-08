@@ -19,11 +19,11 @@ using System.Globalization;
 namespace WpfApp4
 {
     /// <summary>
-    /// Interaction logic for MostTradedCoins.xaml
+    /// Interaction logic for MostAddedToWatchList.xaml
     /// </summary>
-    public partial class MostTradedCoins : Window
+    public partial class MostAddedToWatchList : Window
     {
-        public MostTradedCoins()
+        public MostAddedToWatchList()
         {
             InitializeComponent();
             InitializeChart();
@@ -43,7 +43,7 @@ namespace WpfApp4
                     Values = values,
                     //Fill = Brushes.Green,
                     DataLabels = true,
-                    LabelPoint = point => point.Y.ToString("C0", new CultureInfo("en-US"))
+                    LabelPoint = point => point.Y.ToString("N0", new CultureInfo("en-US"))
                 }
             };
         }
@@ -60,11 +60,11 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var mostTraded = await LocalDataBaseService.GetMostTradedCoins();
+            var mostTraded = await LocalDataBaseService.GetMostAddedToWatchlistCoins();
             var values = mostTradedCoinsChart.Series.First().Values;
             foreach (var coin in mostTraded)
             {
-                values.Add((double)coin.TotalVolumeUsd);
+                values.Add((double)coin.WatchlistUsers);
                 Labels.Add(coin.Name);
                 UpdateLabels();
 
