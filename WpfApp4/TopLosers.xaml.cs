@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics.Metrics;
 using WpfApp4.Data;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
@@ -26,29 +27,41 @@ namespace WpfApp4
     /// </summary>
     public partial class TopLosers : Window
     {
-        private DispatcherTimer _timer;
-        //private DispatcherTimer _timer2;
-        private Random _random;
-        //private int _dataCount;
-        private int _frameCount;
-        private string _outputFolder = @"C:\Users\hamed\Documents\Work\Personal\Crypto\output";
+        private List<BitmapSource> frames;
+        private Stopwatch stopwatch;
+        private DispatcherTimer frameCaptureTimer;
+        private VideoService videoService;
 
         //private LineSeries _lineSeries;
         public SeriesCollection _topLosersValues { get; set; }
         List<string> labels = new List<string>(); // List to store labels
+        public List<string> Labels { get; set; }
+        public Func<double, string> Formatter { get; set; }
 
 
         public TopLosers()
         {
             InitializeComponent();
             InitializeChart();
+            frames = new List<BitmapSource>();
+            stopwatch = new Stopwatch();
+            InitializeFrameCaptureTimer();
+            videoService = new VideoService(this.Title);
             StartAnimation();
+        }
+
+        private void InitializeFrameCaptureTimer()
+        {
+            frameCaptureTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            frameCaptureTimer.Tick += (sender, args) => CaptureFrame();
         }
 
         private void InitializeChart()
         {
             DataContext = this;
-            _random = new Random();
             Labels = new List<string>();
             var values = new ChartValues<double>();
             topLosersChart.Series = new SeriesCollection
@@ -64,13 +77,24 @@ namespace WpfApp4
             };
         }
 
-        public List<string> Labels { get; set; }
-        public Func<double, string> Formatter { get; set; }
 
+
+
+        private void CaptureFrame()
+        {
+            var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(this);
+            frames.Add(renderTargetBitmap);
+        }
 
         private async void StartAnimation()
         {
+            frameCaptureTimer.Start();
+            stopwatch.Start();
             await UpdateChart();
+            frameCaptureTimer.Stop();
+            stopwatch.Stop();
+            SaveVideo();
         }
 
         private async Task UpdateChart()
@@ -102,65 +126,13 @@ namespace WpfApp4
             DataContext = this;
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void SaveVideo()
         {
-            // Capture screenshot of the WPF window
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)Width, (int)Height, 108, 108, PixelFormats.Pbgra32);
-            renderTargetBitmap.Render(this);
-
-            // Encode bitmap to PNG format
-            PngBitmapEncoder pngEncoder = new PngBitmapEncoder();
-            pngEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-
-            // Save PNG file
-            string fileName = $"frame_{_frameCount:D4}.png";
-            string filePath = Path.Combine(_outputFolder, fileName);
-
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                pngEncoder.Save(fileStream);
-            }
-
-            _frameCount++;
-
-            // Example stopping condition (adjust as needed)
-            if (_frameCount > 300)
-            {
-                _timer.Stop();
-                CombineFramesIntoVideo();
-            }
+            videoService.SaveFrames(frames);
+            videoService.CreateVideo(this.Title);
+            MessageBox.Show("Video saved");
+            //OpenContainingFolder(_outputFolder);
         }
-
-        private void CombineFramesIntoVideo()
-        {
-            string outputPath = @"C:\Users\hamed\Documents\Work\Personal\Crypto\output";
-            string ffmpegPath = "ffmpeg"; // Assumes FFmpeg is in the system PATH
-            string inputPattern = Path.Combine(outputPath, "frame_%04d.png");
-            string outputVideo = Path.Combine(outputPath, "animation.mp4");
-
-            string arguments = $"-r 30 -f image2 -i {inputPattern} -vcodec libx264 -crf 18 -pix_fmt yuv420p {outputVideo}";
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = ffmpegPath,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (var process = new Process { StartInfo = startInfo })
-            {
-                process.Start();
-                process.WaitForExit();
-
-                if (process.ExitCode != 0)
-                {
-                    // Handle error
-                    string error = process.StandardOutput.ReadToEnd();
-                    MessageBox.Show($"FFmpeg Error: {error}");
-                }
-            }
-        }
+        
     }
 }
