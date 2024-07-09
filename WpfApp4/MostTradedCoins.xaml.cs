@@ -60,7 +60,7 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var mostTraded = await LocalDataBaseService.GetMostTradedCoins();
+            var mostTraded = MostTradedCoinService.GetMostTradedCoins();
             var values = mostTradedCoinsChart.Series.First().Values;
             foreach (var coin in mostTraded)
             {

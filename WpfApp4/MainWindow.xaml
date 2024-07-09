@@ -1,0 +1,30 @@
+﻿<Window x:Class="WpfApp4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp4"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <UniformGrid Columns="3">
+            <Button Content="Fetch Data" Click="FetchData_Click"/>
+            <Button Content="Top Gainers" Click="TopGainers_Click"/>
+            <Button Content="Top Losers" Click="TopLosers_Click"/>
+            <Button Content="Trending Coin1" Click="TrendingCoin1_Click"/>
+            <Button Content="Trending Coin2" Click="TrendingCoin2_Click"/>
+            <Button Content="Trending Coin3" Click="TrendingCoin3_Click"/>
+            <Button Content="Trending Coin4" Click="TrendingCoin4_Click"/>
+            <Button Content="Trending Coin5" Click="TrendingCoin5_Click"/>
+            <Button Content="Most Traded Coins" Click="MostTradedCoins_Click"/>
+            <Button Content="Most Added To WatchList" Click="MostAddedToWatchList_Click"/>
+            <Button Content="Most Added To WatchList Trade Info" Click="MostAddedToWatchListTradeInfo_Click"/>
+            <Button Content="MostVolatileCoins" Click="MostVolatileCoins_Click"/>
+        </UniformGrid>
+        <ProgressBar Name="progressBar" Grid.Row="1" Height="20" Margin="10" Minimum="0" Maximum="100" Visibility="Collapsed"/>
+    </Grid>
+</Window>

@@ -47,7 +47,7 @@ namespace WpfApp4
             };
 
             // Retrieve data from your service (assuming GetMostAddedToWatchlistCoins returns a collection of coins)
-            var res = await LocalDataBaseService.GetMostVolatileCoins(10);
+            var res = MostVolatileCoinsService.GetMostVolatileCoins();
 
             // Iterate through each coin and add values to the corresponding RowSeries
             foreach (var coin in res)

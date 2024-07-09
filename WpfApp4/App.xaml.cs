@@ -18,7 +18,10 @@ namespace WpfApp4
         {
             base.OnStartup(e);
 
-            await FetchData();
+            var mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            //await FetchData();
 
 
             //var topGainers = new TopGainers();
@@ -54,8 +57,8 @@ namespace WpfApp4
             //var mostAddedToWatchListTradeInfo = new MostAddedToWatchListTradeInfo();
             //mostAddedToWatchListTradeInfo.Show();
 
-            var mostVolatileCoins = new MostVolatileCoins();
-            mostVolatileCoins.Show();
+            //var mostVolatileCoins = new MostVolatileCoins();
+            //mostVolatileCoins.Show();
         }
 
         private static async Task FetchData()
