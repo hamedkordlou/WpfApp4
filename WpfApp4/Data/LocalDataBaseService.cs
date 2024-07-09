@@ -37,6 +37,13 @@ namespace WpfApp4.Data
         
     }
 
+    public class MostVolatile
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public double PriceChangePercentage24h { get; set; }
+    }
+
     public class LocalDataBaseService
     {
         private static readonly HttpClient client = new HttpClient();
@@ -175,7 +182,30 @@ namespace WpfApp4.Data
             return mostAddedToWatchlistCoins;
         }
 
+        public static async Task<List<MostVolatile>> GetMostVolatileCoins(int topCount = 10)
+        {
+            var collection = database.GetCollection<BsonDocument>("coins");
 
+            // Retrieve all coins from the database
+            var allCoins = await collection.Find(new BsonDocument()).ToListAsync();
+
+            // Select and sort coins by absolute price change percentage over the last 24 hours
+            var mostVolatileCoins = allCoins
+                .Where(coin => coin.Contains("market_data")
+                               && coin["market_data"].AsBsonDocument.Contains("price_change_percentage_24h")
+                               && !coin["market_data"]["price_change_percentage_24h"].IsBsonNull)
+                .Select(coin => new MostVolatile
+                {
+                    Id = coin["id"].AsString,
+                    Name = coin["name"].AsString,
+                    PriceChangePercentage24h = coin["market_data"]["price_change_percentage_24h"].ToDouble()
+                })
+                .OrderByDescending(coin => Math.Abs(coin.PriceChangePercentage24h))
+                .Take(topCount)
+                .ToList();
+
+            return mostVolatileCoins;
+        }
 
 
         public static async Task PrintTopByROI(int topN = 10)

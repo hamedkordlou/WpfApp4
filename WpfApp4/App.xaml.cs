@@ -48,11 +48,14 @@ namespace WpfApp4
             //var mostTraded = new MostTradedCoins();
             //mostTraded.Show();
 
-            var mostAddedToWatchList = new MostAddedToWatchList();
-            mostAddedToWatchList.Show();
+            //var mostAddedToWatchList = new MostAddedToWatchList();
+            //mostAddedToWatchList.Show();
 
-            var mostAddedToWatchListTradeInfo = new MostAddedToWatchListTradeInfo();
-            mostAddedToWatchListTradeInfo.Show();
+            //var mostAddedToWatchListTradeInfo = new MostAddedToWatchListTradeInfo();
+            //mostAddedToWatchListTradeInfo.Show();
+
+            var mostVolatileCoins = new MostVolatileCoins();
+            mostVolatileCoins.Show();
         }
 
         private static async Task FetchData()
