@@ -16,6 +16,9 @@ using System.Windows.Shapes;
 using WpfApp4.Data;
 using System.Reflection.Emit;
 using Separator = LiveCharts.Wpf.Separator;
+using System.Diagnostics;
+using System.Windows.Threading;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
@@ -24,9 +27,20 @@ namespace WpfApp4
     /// </summary>
     public partial class TrendingCoin5 : Window
     {
+
+        private List<BitmapSource> frames;
+        private Stopwatch stopwatch;
+        private DispatcherTimer frameCaptureTimer;
+        private VideoService videoService;
+
         public TrendingCoin5()
         {
             InitializeComponent();
+
+            frames = new List<BitmapSource>();
+            stopwatch = new Stopwatch();
+            InitializeFrameCaptureTimer();
+            videoService = new VideoService(this.Title);
 
             cartesianChart.Series = new SeriesCollection
             {
@@ -59,9 +73,30 @@ namespace WpfApp4
             StartAnimation();
         }
 
+        private void InitializeFrameCaptureTimer()
+        {
+            frameCaptureTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            frameCaptureTimer.Tick += (sender, args) => CaptureFrame();
+        }
+
+        private void CaptureFrame()
+        {
+            var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(this);
+            frames.Add(renderTargetBitmap);
+        }
+
         private async void StartAnimation()
         {
+            frameCaptureTimer.Start();
+            stopwatch.Start();
             await UpdateChart();
+            frameCaptureTimer.Stop();
+            stopwatch.Stop();
+            SaveVideo();
         }
 
         private async Task UpdateChart()
@@ -77,7 +112,16 @@ namespace WpfApp4
             for (int i = 0; i < result[0].Count; i += 12)
             {
                 lineSeries.Values.Add(result[0][i][1]);
+                await Task.Delay(1000);
             }
+        }
+
+        private void SaveVideo()
+        {
+            videoService.SaveFrames(frames);
+            videoService.CreateVideo(this.Title);
+            MessageBox.Show("Video saved");
+            //OpenContainingFolder(_outputFolder);
         }
     }
 }
