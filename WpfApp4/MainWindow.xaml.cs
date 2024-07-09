@@ -62,8 +62,8 @@ namespace WpfApp4
                 //await MostTradedCoinService.InitializeDataAsync();
                 //UpdateProgressBar(60);
 
-                //await MostAddedToWatchListService.InitializeDataAsync();
-                //UpdateProgressBar(80);
+                await MostAddedToWatchListService.InitializeDataAsync();
+                UpdateProgressBar(80);
 
                 //await MostVolatileCoinsService.InitializeDataAsync();
                 //UpdateProgressBar(100);
