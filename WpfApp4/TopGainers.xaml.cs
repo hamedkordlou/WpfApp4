@@ -12,23 +12,43 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WpfApp4.Data;
 using System.Windows.Threading;
 using System.Reflection.Emit;
+using System.Diagnostics;
+using System.IO;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
-    /// <summary>
-    /// Interaction logic for TopGainers.xaml
-    /// </summary>
     public partial class TopGainers : Window
     {
+        private List<BitmapSource> frames;
+        private Stopwatch stopwatch;
+        private DispatcherTimer frameCaptureTimer;
+        private VideoService videoService;
+
+        public List<string> Labels { get; set; }
+        public Func<double, string> Formatter { get; set; }
+
         public TopGainers()
         {
             InitializeComponent();
             InitializeChart();
+            frames = new List<BitmapSource>();
+            stopwatch = new Stopwatch();
+            InitializeFrameCaptureTimer();
+            videoService = new VideoService(this.Title);
             StartAnimation();
+        }
+
+        private void InitializeFrameCaptureTimer()
+        {
+            frameCaptureTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            frameCaptureTimer.Tick += (sender, args) => CaptureFrame();
         }
 
         private void InitializeChart()
@@ -49,18 +69,25 @@ namespace WpfApp4
             };
         }
 
-        public List<string> Labels { get; set; }
-        public Func<double, string> Formatter { get; set; }
-
+        private void CaptureFrame()
+        {
+            var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(this);
+            frames.Add(renderTargetBitmap);
+        }
 
         private async void StartAnimation()
         {
+            frameCaptureTimer.Start();
+            stopwatch.Start();
             await UpdateChart();
+            frameCaptureTimer.Stop();
+            stopwatch.Stop();
+            SaveVideo();
         }
 
         private async Task UpdateChart()
         {
-
             var topGainers = await TopGainersService.GetTopGainersAsync();
             var values = topGainersChart.Series.First().Values;
             foreach (var topGainer in topGainers)
@@ -68,8 +95,7 @@ namespace WpfApp4
                 values.Add(topGainer.usd_24h_change);
                 Labels.Add(topGainer.name);
                 UpdateLabels();
-
-                await Task.Delay(2000);
+                await Task.Delay(2000); // Update every 2 seconds
             }
         }
 
@@ -85,6 +111,24 @@ namespace WpfApp4
             // Refresh DataContext to update the chart
             DataContext = null;
             DataContext = this;
+        }
+
+        private void SaveVideo()
+        {
+            videoService.SaveFrames(frames);
+            videoService.CreateVideo(this.Title);
+            MessageBox.Show("Video saved");
+            //OpenContainingFolder(_outputFolder);
+        }
+
+        private void OpenContainingFolder(string folderPath)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folderPath,
+                UseShellExecute = true,
+                Verb = "open"
+            });
         }
     }
 }
