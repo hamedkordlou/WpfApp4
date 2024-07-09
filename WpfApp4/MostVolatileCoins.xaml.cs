@@ -2,6 +2,7 @@
 using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using WpfApp4.Data;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
@@ -22,13 +25,53 @@ namespace WpfApp4
     /// </summary>
     public partial class MostVolatileCoins : Window
     {
+        private List<BitmapSource> frames;
+        private Stopwatch stopwatch;
+        private DispatcherTimer frameCaptureTimer;
+        private VideoService videoService;
+
         public SeriesCollection SeriesCollection { get; set; }
         public List<string> Labels { get; set; }
 
         public MostVolatileCoins()
         {
             InitializeComponent();
-            InitializeChartAsync();
+
+            frames = new List<BitmapSource>();
+            stopwatch = new Stopwatch();
+            InitializeFrameCaptureTimer();
+            videoService = new VideoService(this.Title);
+
+            //InitializeChartAsync();
+
+            StartAnimation();
+        }
+
+        private void InitializeFrameCaptureTimer()
+        {
+            frameCaptureTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            frameCaptureTimer.Tick += (sender, args) => CaptureFrame();
+        }
+
+        private void CaptureFrame()
+        {
+            var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(this);
+            frames.Add(renderTargetBitmap);
+        }
+
+        private async void StartAnimation()
+        {
+            frameCaptureTimer.Start();
+            stopwatch.Start();
+            //await UpdateChart();
+            await InitializeChartAsync();
+            frameCaptureTimer.Stop();
+            stopwatch.Stop();
+            SaveVideo();
         }
 
         private async Task InitializeChartAsync()
@@ -46,6 +89,10 @@ namespace WpfApp4
                 }
             };
 
+            // Set the SeriesCollection and Labels to the chart
+            cartesianChart.Series = SeriesCollection;
+            cartesianChart.DataContext = this;
+
             // Retrieve data from your service (assuming GetMostAddedToWatchlistCoins returns a collection of coins)
             var res = MostVolatileCoinsService.GetMostVolatileCoins();
 
@@ -59,12 +106,17 @@ namespace WpfApp4
                 SeriesCollection[0].Values.Add(coin.PriceChangePercentage24h);
 
                 Labels.Add(coin.Name);
+                await Task.Delay(1000);
             }
 
+        }
 
-            // Set the SeriesCollection and Labels to the chart
-            cartesianChart.Series = SeriesCollection;
-            cartesianChart.DataContext = this;
+        private void SaveVideo()
+        {
+            videoService.SaveFrames(frames);
+            videoService.CreateVideo(this.Title);
+            MessageBox.Show("Video saved");
+            //OpenContainingFolder(_outputFolder);
         }
     }
 }

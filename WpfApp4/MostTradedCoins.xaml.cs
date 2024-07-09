@@ -15,6 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApp4.Data;
 using System.Globalization;
+using System.Diagnostics;
+using System.Windows.Threading;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
@@ -23,11 +26,29 @@ namespace WpfApp4
     /// </summary>
     public partial class MostTradedCoins : Window
     {
+        private List<BitmapSource> frames;
+        private Stopwatch stopwatch;
+        private DispatcherTimer frameCaptureTimer;
+        private VideoService videoService;
+
         public MostTradedCoins()
         {
             InitializeComponent();
             InitializeChart();
+            frames = new List<BitmapSource>();
+            stopwatch = new Stopwatch();
+            InitializeFrameCaptureTimer();
+            videoService = new VideoService(this.Title);
             StartAnimation();
+        }
+
+        private void InitializeFrameCaptureTimer()
+        {
+            frameCaptureTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(10)
+            };
+            frameCaptureTimer.Tick += (sender, args) => CaptureFrame();
         }
 
         private void InitializeChart()
@@ -51,10 +72,21 @@ namespace WpfApp4
         public List<string> Labels { get; set; }
         public Func<double, string> Formatter { get; set; }
 
+        private void CaptureFrame()
+        {
+            var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(this);
+            frames.Add(renderTargetBitmap);
+        }
 
         private async void StartAnimation()
         {
+            frameCaptureTimer.Start();
+            stopwatch.Start();
             await UpdateChart();
+            frameCaptureTimer.Stop();
+            stopwatch.Stop();
+            SaveVideo();
         }
 
         private async Task UpdateChart()
@@ -84,6 +116,14 @@ namespace WpfApp4
             // Refresh DataContext to update the chart
             DataContext = null;
             DataContext = this;
+        }
+
+        private void SaveVideo()
+        {
+            videoService.SaveFrames(frames);
+            videoService.CreateVideo(this.Title);
+            MessageBox.Show("Video saved");
+            //OpenContainingFolder(_outputFolder);
         }
     }
 }
