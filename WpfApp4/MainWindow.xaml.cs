@@ -55,9 +55,9 @@ namespace WpfApp4
             {
                 await TopGainersService.InitializeDataAsync();
                 UpdateProgressBar(20);
-                
-                //await TrendingService.InitializeDataAsync();
-                //UpdateProgressBar(40);
+
+                await TrendingService.InitializeDataAsync();
+                UpdateProgressBar(40);
 
                 //await MostTradedCoinService.InitializeDataAsync();
                 //UpdateProgressBar(60);
