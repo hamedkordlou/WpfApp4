@@ -147,14 +147,5 @@ namespace WpfApp4
             //OpenContainingFolder(_outputFolder);
         }
 
-        private void OpenContainingFolder(string folderPath)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = folderPath,
-                UseShellExecute = true,
-                Verb = "open"
-            });
-        }
     }
 }
