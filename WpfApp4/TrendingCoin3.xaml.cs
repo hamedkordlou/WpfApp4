@@ -32,6 +32,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private bool capturing;
 
         public TrendingCoin3()
         {
@@ -41,6 +42,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            capturing = true;
 
             cartesianChart.Series = new SeriesCollection
             {
@@ -91,10 +93,20 @@ namespace WpfApp4
 
         private async void StartAnimation()
         {
-            frameCaptureTimer.Start();
+            var frameCaptureTask = Task.Run(() =>
+            {
+                while (capturing)
+                {
+                    Application.Current.Dispatcher.Invoke(() => CaptureFrame());
+                    System.Threading.Thread.Sleep(10); // Ensures the frame capture interval
+                }
+            });
+
             stopwatch.Start();
             await UpdateChart();
-            frameCaptureTimer.Stop();
+            await Task.Delay(3000);
+            capturing = false;
+            await frameCaptureTask;
             stopwatch.Stop();
             SaveVideo();
         }
@@ -108,11 +120,20 @@ namespace WpfApp4
 
             lineSeries.Values.Clear();
 
-            // Filter for hourly prices (every 12th data point for 5-minute intervals)
-            for (int i = 0; i < result[0].Count; i += 12)
+            await Task.Delay(2000);
+
+            try
             {
-                lineSeries.Values.Add(result[2][i][1]);
-                await Task.Delay(1000);
+                // Filter for hourly prices (every 12th data point for 5-minute intervals)
+                for (int i = 0; i < result[0].Count; i += 12)
+                {
+                    lineSeries.Values.Add(result[1][i][1]);
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
 

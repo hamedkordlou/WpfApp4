@@ -121,12 +121,20 @@ namespace WpfApp4
 
             await Task.Delay(2000);
 
-            // Filter for hourly prices (every 12th data point for 5-minute intervals)
-            for (int i = 0; i < result[0].Count; i += 12)
+            try
             {
-                lineSeries.Values.Add(result[1][i][1]);
-                await Task.Delay(1000);
+                // Filter for hourly prices (every 12th data point for 5-minute intervals)
+                for (int i = 0; i < result[0].Count; i += 12)
+                {
+                    lineSeries.Values.Add(result[1][i][1]);
+                    await Task.Delay(1000);
+                }
             }
+            catch (Exception)
+            {
+
+            }
+            
         }
 
         private void SaveVideo()
