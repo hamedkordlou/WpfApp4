@@ -29,6 +29,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private bool capturing;
 
         public SeriesCollection SeriesCollection { get; set; }
         public List<string> Labels { get; set; }
@@ -41,6 +42,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            capturing = true;
 
             //InitializeChartAsync();
 
@@ -65,10 +67,19 @@ namespace WpfApp4
 
         private async void StartAnimation()
         {
-            frameCaptureTimer.Start();
+            var frameCaptureTask = Task.Run(() =>
+            {
+                while (capturing)
+                {
+                    Application.Current.Dispatcher.Invoke(() => CaptureFrame());
+                    System.Threading.Thread.Sleep(10); // Ensures the frame capture interval
+                }
+            });
             stopwatch.Start();
             //await UpdateChart();
             await InitializeChartAsync();
+            await Task.Delay(3000);
+            capturing = false;
             frameCaptureTimer.Stop();
             stopwatch.Stop();
             SaveVideo();
@@ -85,7 +96,8 @@ namespace WpfApp4
                 {
                     Title = "Price Change in 24h (%)",
                     Values = new ChartValues<double>(),
-                    DataLabels = true
+                    DataLabels = true,
+                    Foreground = Brushes.White
                 }
             };
 
@@ -94,7 +106,7 @@ namespace WpfApp4
             cartesianChart.DataContext = this;
 
             // Retrieve data from your service (assuming GetMostAddedToWatchlistCoins returns a collection of coins)
-            var res = MostVolatileCoinsService.GetMostVolatileCoins();
+            var res = MostVolatileCoinsService.GetMostVolatileCoins()?.OrderBy(x => x.PriceChangePercentage24h);
 
             // Iterate through each coin and add values to the corresponding RowSeries
             foreach (var coin in res)
@@ -106,7 +118,7 @@ namespace WpfApp4
                 SeriesCollection[0].Values.Add(coin.PriceChangePercentage24h);
 
                 Labels.Add(coin.Name);
-                await Task.Delay(1000);
+                await Task.Delay(2000);
             }
 
         }
