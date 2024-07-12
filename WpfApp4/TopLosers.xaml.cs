@@ -31,6 +31,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private bool capturing;
 
         //private LineSeries _lineSeries;
         public SeriesCollection _topLosersValues { get; set; }
@@ -47,6 +48,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            capturing = true;
             StartAnimation();
         }
 
@@ -72,7 +74,8 @@ namespace WpfApp4
                     Values = values,
                     Fill = Brushes.Red,
                     DataLabels = true,
-                    LabelPoint = point => $"{point.Y:F2}%"
+                    LabelPoint = point => $"{point.Y:F2}%",
+                    Foreground = Brushes.White
                 }
             };
         }
@@ -89,10 +92,20 @@ namespace WpfApp4
 
         private async void StartAnimation()
         {
-            frameCaptureTimer.Start();
+            var frameCaptureTask = Task.Run(() =>
+            {
+                while (capturing)
+                {
+                    Application.Current.Dispatcher.Invoke(() => CaptureFrame());
+                    System.Threading.Thread.Sleep(10); // Ensures the frame capture interval
+                }
+            });
+
             stopwatch.Start();
             await UpdateChart();
-            frameCaptureTimer.Stop();
+            await Task.Delay(3000);
+            capturing = false;
+            await frameCaptureTask;
             stopwatch.Stop();
             SaveVideo();
         }
