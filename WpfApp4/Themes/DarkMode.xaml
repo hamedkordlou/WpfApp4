@@ -1,0 +1,41 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf">
+
+    <!-- Define Dark Theme Colors -->
+    <Color x:Key="BackgroundColor">#FF2D2D30</Color>
+    <Color x:Key="ForegroundColor">#FFFFFFFF</Color>
+    <Color x:Key="ChartBackgroundColor">#FF1E1E1E</Color>
+    <Color x:Key="ChartLineColor">#FFCCCCCC</Color>
+    <Color x:Key="ChartAxisColor">#FFBBBBBB</Color>
+    <Color x:Key="ChartGridColor">#FF444444</Color>
+
+    <!-- Apply Dark Theme Colors -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource BackgroundColor}" />
+    <SolidColorBrush x:Key="WindowForegroundBrush" Color="{StaticResource ForegroundColor}" />
+    <SolidColorBrush x:Key="ChartBackgroundBrush" Color="{StaticResource ChartBackgroundColor}" />
+    <SolidColorBrush x:Key="ChartLineBrush" Color="{StaticResource ChartLineColor}" />
+    <SolidColorBrush x:Key="ChartAxisBrush" Color="{StaticResource ChartAxisColor}" />
+    <SolidColorBrush x:Key="ChartGridBrush" Color="{StaticResource ChartGridColor}" />
+
+    <!-- Apply Styles to Window -->
+    <Style TargetType="Window">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}" />
+    </Style>
+
+    <!-- Apply Styles to CartesianChart -->
+    <Style TargetType="lvc:CartesianChart">
+        <Setter Property="Background" Value="{StaticResource ChartBackgroundBrush}" />
+    </Style>
+
+    <!-- Apply Styles to Axis -->
+    <Style TargetType="lvc:Axis">
+        <Setter Property="Foreground" Value="{StaticResource ChartAxisBrush}" />
+    </Style>
+
+    <!-- Apply Styles to Separator -->
+    <Style TargetType="lvc:Separator">
+        <Setter Property="Stroke" Value="{StaticResource ChartGridBrush}" />
+    </Style>
+</ResourceDictionary>

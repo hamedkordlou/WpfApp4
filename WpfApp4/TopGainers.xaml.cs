@@ -66,7 +66,8 @@ namespace WpfApp4
                     Values = values,
                     Fill = Brushes.Green,
                     DataLabels = true,
-                    LabelPoint = point => $"{point.Y:F2}%"
+                    LabelPoint = point => $"{point.Y:F2}%",
+                    Foreground = Brushes.White
                 }
             };
         }
