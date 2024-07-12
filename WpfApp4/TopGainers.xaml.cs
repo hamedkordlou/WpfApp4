@@ -27,6 +27,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private bool capturing;
 
         public List<string> Labels { get; set; }
         public Func<double, string> Formatter { get; set; }
@@ -39,6 +40,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            capturing = true;
             StartAnimation();
         }
 
@@ -71,17 +73,39 @@ namespace WpfApp4
 
         private void CaptureFrame()
         {
+            //var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 108, 108, PixelFormats.Pbgra32);
             var renderTargetBitmap = new RenderTargetBitmap((int)this.ActualWidth, (int)this.ActualHeight, 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(this);
             frames.Add(renderTargetBitmap);
         }
 
+        //private async void StartAnimation()
+        //{
+        //    frameCaptureTimer.Start();
+        //    stopwatch.Start();
+        //    await UpdateChart();
+        //    await Task.Delay(2000);
+        //    frameCaptureTimer.Stop();
+        //    stopwatch.Stop();
+        //    SaveVideo();
+        //}
+
         private async void StartAnimation()
         {
-            frameCaptureTimer.Start();
+            var frameCaptureTask = Task.Run(() =>
+            {
+                while (capturing)
+                {
+                    Application.Current.Dispatcher.Invoke(() => CaptureFrame());
+                    System.Threading.Thread.Sleep(10); // Ensures the frame capture interval
+                }
+            });
+
             stopwatch.Start();
             await UpdateChart();
-            frameCaptureTimer.Stop();
+            await Task.Delay(3000);
+            capturing = false;
+            await frameCaptureTask;
             stopwatch.Stop();
             SaveVideo();
         }
@@ -90,6 +114,7 @@ namespace WpfApp4
         {
             var topGainers = await TopGainersService.GetTopGainersAsync();
             var values = topGainersChart.Series.First().Values;
+            await Task.Delay(2000);
             foreach (var topGainer in topGainers)
             {
                 values.Add(topGainer.usd_24h_change);

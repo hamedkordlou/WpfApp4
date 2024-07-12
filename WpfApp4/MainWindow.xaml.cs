@@ -53,8 +53,8 @@ namespace WpfApp4
 
             await Task.Run(async () =>
             {
-                //await TopGainersService.InitializeDataAsync();
-                //UpdateProgressBar(20);
+                await TopGainersService.InitializeDataAsync();
+                UpdateProgressBar(20);
 
                 //await TrendingService.InitializeDataAsync();
                 //UpdateProgressBar(40);
@@ -65,8 +65,8 @@ namespace WpfApp4
                 //await MostAddedToWatchListService.InitializeDataAsync();
                 //UpdateProgressBar(80);
 
-                await MostVolatileCoinsService.InitializeDataAsync();
-                UpdateProgressBar(100);
+                //await MostVolatileCoinsService.InitializeDataAsync();
+                //UpdateProgressBar(100);
             });
 
             progressBar.Visibility = Visibility.Collapsed;
