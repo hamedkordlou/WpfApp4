@@ -67,7 +67,7 @@ namespace WpfApp4
             cartesianChart.AxisY.Add(new Axis
             {
                 Title = "Price 24h (USD)",
-                LabelFormatter = value => value.ToString("N")
+                LabelFormatter = value => value.ToString("N8")
                 //MinValue = 0
             });
 

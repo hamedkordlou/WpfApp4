@@ -30,6 +30,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private bool capturing;
 
         public MostTradedCoins()
         {
@@ -39,6 +40,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            capturing = true;
             StartAnimation();
         }
 
@@ -81,9 +83,17 @@ namespace WpfApp4
 
         private async void StartAnimation()
         {
-            frameCaptureTimer.Start();
+            var frameCaptureTask = Task.Run(() =>
+            {
+                while (capturing)
+                {
+                    Application.Current.Dispatcher.Invoke(() => CaptureFrame());
+                    System.Threading.Thread.Sleep(10); // Ensures the frame capture interval
+                }
+            });
             stopwatch.Start();
             await UpdateChart();
+            //await Task.Delay(3000);
             frameCaptureTimer.Stop();
             stopwatch.Stop();
             SaveVideo();
@@ -92,7 +102,7 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var mostTraded = MostTradedCoinService.GetMostTradedCoins();
+            var mostTraded = MostTradedCoinService.GetMostTradedCoins()?.OrderBy(x => x.TotalVolumeUsd);
             var values = mostTradedCoinsChart.Series.First().Values;
             foreach (var coin in mostTraded)
             {

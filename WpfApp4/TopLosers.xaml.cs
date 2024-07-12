@@ -114,6 +114,7 @@ namespace WpfApp4
         {
 
             var topLosers = await TopGainersService.GetTopLosers();
+            topLosers = topLosers.OrderByDescending(x => x.usd_24h_change).ToList();
             var values = topLosersChart.Series.First().Values;
             foreach (var topLoser in topLosers)
             {

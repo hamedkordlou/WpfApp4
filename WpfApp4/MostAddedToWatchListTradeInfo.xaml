@@ -6,7 +6,14 @@
         xmlns:local="clr-namespace:WpfApp4"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="MostAddedToWatchListTradeInfo" Height="450" Width="800">
+        Title="MostAddedToWatchListTradeInfo" Height="1080" Width="1920">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/DarkMode.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <lvc:CartesianChart Name="cartesianChart" Margin="10">
             <lvc:CartesianChart.AxisY>
