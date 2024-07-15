@@ -66,7 +66,8 @@ namespace WpfApp4
                     Values = values,
                     //Fill = Brushes.Green,
                     DataLabels = true,
-                    LabelPoint = point => point.Y.ToString("C0", new CultureInfo("en-US"))
+                    LabelPoint = point => point.Y.ToString("C0", new CultureInfo("en-US")),
+                    Foreground = Brushes.White
                 }
             };
         }

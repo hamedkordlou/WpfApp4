@@ -53,17 +53,17 @@ namespace WpfApp4
 
             await Task.Run(async () =>
             {
-                await TopGainersService.InitializeDataAsync();
-                UpdateProgressBar(20);
+                //await TopGainersService.InitializeDataAsync();
+                //UpdateProgressBar(20);
 
-                //await TrendingService.InitializeDataAsync();
-                //UpdateProgressBar(40);
+                await TrendingService.InitializeDataAsync();
+                UpdateProgressBar(40);
 
                 //await MostTradedCoinService.InitializeDataAsync();
                 //UpdateProgressBar(60);
 
-                await MostAddedToWatchListService.InitializeDataAsync();
-                UpdateProgressBar(80);
+                //await MostAddedToWatchListService.InitializeDataAsync();
+                //UpdateProgressBar(80);
 
                 //await MostVolatileCoinsService.InitializeDataAsync();
                 //UpdateProgressBar(100);

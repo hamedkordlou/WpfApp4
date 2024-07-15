@@ -75,9 +75,14 @@ namespace WpfApp4
                     Fill = Brushes.Red,
                     DataLabels = true,
                     LabelPoint = point => $"{point.Y:F2}%",
-                    Foreground = Brushes.White
+                    Foreground = Brushes.White,
+                    FontSize = 20, // Increase the font size of the data labels
+                    MaxColumnWidth = 70 // Increase the width of the columns
                 }
             };
+
+            topLosersChart.AxisX.First().FontSize = 20; // Increase the font size of the X-axis labels
+            topLosersChart.AxisY.First().FontSize = 20;
         }
 
 

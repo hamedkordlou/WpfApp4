@@ -64,12 +64,17 @@ namespace WpfApp4
                 {
                     Title = "24h Change",
                     Values = values,
-                    Fill = Brushes.Green,
+                    Fill = Brushes.LightGreen,
                     DataLabels = true,
                     LabelPoint = point => $"{point.Y:F2}%",
-                    Foreground = Brushes.White
+                    Foreground = Brushes.White,
+                    FontSize = 20, // Increase the font size of the data labels
+                    MaxColumnWidth = 70 // Increase the width of the columns
                 }
             };
+
+            topGainersChart.AxisX.First().FontSize = 20; // Increase the font size of the X-axis labels
+            topGainersChart.AxisY.First().FontSize = 20;
         }
 
         private void CaptureFrame()

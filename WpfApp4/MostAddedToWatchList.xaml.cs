@@ -78,7 +78,7 @@ namespace WpfApp4
             stopwatch.Start();
             //await UpdateChart();
             await InitializeChartAsync();
-            await Task.Delay(3000);
+            //await Task.Delay(3000);
             capturing = false;
             frameCaptureTimer.Stop();
             stopwatch.Stop();
@@ -97,7 +97,8 @@ namespace WpfApp4
                     Title = "Number of Added to Watchlist",
                     Values = new ChartValues<double>(),
                     DataLabels = true,
-                    LabelPoint = point => point.X.ToString("N0", new CultureInfo("en-US"))
+                    LabelPoint = point => point.X.ToString("N0", new CultureInfo("en-US")),
+                    Foreground = Brushes.White
                 }
                 //new RowSeries
                 //{

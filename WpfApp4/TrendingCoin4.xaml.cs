@@ -34,6 +34,8 @@ namespace WpfApp4
         private VideoService videoService;
         private bool capturing;
 
+        public List<string> XLabels { get; set; } // Add this property for X-axis labels
+
         public TrendingCoin4()
         {
             InitializeComponent();
@@ -43,6 +45,8 @@ namespace WpfApp4
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
             capturing = true;
+
+            XLabels = new List<string>(); // Initialize the XLabels list
 
             cartesianChart.Series = new SeriesCollection
             {
@@ -55,20 +59,23 @@ namespace WpfApp4
 
             cartesianChart.AxisX.Add(new Axis
             {
-                Title = "Time 24h",
+                //Title = "Time 24h",
                 //Labels = new string[] { },
-                ShowLabels = false,
+                //ShowLabels = false,
+                Labels = XLabels,
                 Separator = new Separator
                 {
-                    Step = 1,
+                    Step = 12,
                     IsEnabled = true
-                }
+                },
+                FontSize = 20, // Increase the font size of the X-axis labels
             });
 
             cartesianChart.AxisY.Add(new Axis
             {
-                Title = "Price 24h (USD)",
-                LabelFormatter = value => value.ToString("N8")
+                //Title = "Price 24h (USD)",
+                LabelFormatter = value => value.ToString("N6"),
+                FontSize = 20, // Increase the font size of the Y-axis labels
                 //MinValue = 0
             });
 
@@ -119,16 +126,31 @@ namespace WpfApp4
             var lineSeries = (LineSeries)cartesianChart.Series[0];
 
             lineSeries.Values.Clear();
+            XLabels.Clear(); // Clear the XLabels list
 
             await Task.Delay(2000);
 
             try
             {
                 // Filter for hourly prices (every 12th data point for 5-minute intervals)
-                for (int i = 0; i < result[0].Count; i += 12)
+                for (int i = 0; i < result[0].Count; i += 1)
                 {
-                    lineSeries.Values.Add(result[1][i][1]);
-                    await Task.Delay(1000);
+                    lineSeries.Values.Add(result[3][i][1]);
+
+                    long timestampMillis = (long)result[3][i][0];
+
+                    // Ensure the timestamp is within valid range
+                    if (timestampMillis < DateTimeOffset.MinValue.ToUnixTimeMilliseconds() ||
+                        timestampMillis > DateTimeOffset.MaxValue.ToUnixTimeMilliseconds())
+                    {
+                        throw new ArgumentOutOfRangeException("Timestamp is out of valid DateTime range.");
+                    }
+
+                    DateTime timestamp = DateTimeOffset.FromUnixTimeMilliseconds(timestampMillis).DateTime;
+                    timestamp = new DateTime(timestamp.Year, timestamp.Month, timestamp.Day, timestamp.Hour, 0, 0, DateTimeKind.Utc);
+                    XLabels.Add(timestamp.ToString("HH:mm"));
+
+                    await Task.Delay(50);
                 }
             }
             catch (Exception)

@@ -78,7 +78,7 @@ namespace WpfApp4
             stopwatch.Start();
             //await UpdateChart();
             await InitializeChartAsync();
-            await Task.Delay(3000);
+            //await Task.Delay(3000);
             capturing = false;
             frameCaptureTimer.Stop();
             stopwatch.Stop();
@@ -103,7 +103,8 @@ namespace WpfApp4
                 {
                     Title = "Total Volume (USD)",
                     Values = new ChartValues<decimal>(),
-                    DataLabels = true
+                    DataLabels = true,
+                    Foreground = Brushes.White
                 }
             };
 

@@ -24,9 +24,23 @@ namespace WpfApp4.Data
             var ids = trendingCoins.Select(x => x.item.id).ToList();
             //var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids={string.Join("%2C", ids)}&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
 
+            // Get the current date and time
+            DateTime now = DateTime.UtcNow;
+
+            // Calculate "yesterday at 00:00"
+            DateTime start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc).AddDays(-1);
+
+            // Calculate "today at 00:00"
+            DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
+
+            // Convert to UnixTimeMilliseconds
+            long startUnixTimeMilliseconds = ((DateTimeOffset)start).ToUnixTimeSeconds();
+            long endUnixTimeMilliseconds = ((DateTimeOffset)end).ToUnixTimeSeconds();
+
             foreach (var id in ids)
             {
-                var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days=1&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
+                //var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days=1&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
+                var marketUrl = $"https://pro-api.coingecko.com/api/v3/coins/{id}/market_chart/range?vs_currency=usd&from={startUnixTimeMilliseconds}&to={endUnixTimeMilliseconds}&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum";
                 // get market for ids
                 response = await client.GetStringAsync(marketUrl);
                 PopulateCoinHistory(response);
