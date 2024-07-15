@@ -110,7 +110,7 @@ namespace WpfApp4
 
             stopwatch.Start();
             await UpdateChart();
-            //await Task.Delay(3000);
+            await Task.Delay(3000);
             capturing = false;
             await frameCaptureTask;
             stopwatch.Stop();

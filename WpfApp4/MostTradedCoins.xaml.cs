@@ -62,14 +62,19 @@ namespace WpfApp4
             {
                 new ColumnSeries
                 {
-                    Title = "24h Volume",
+                    //Title = "24h Volume",
                     Values = values,
                     //Fill = Brushes.Green,
                     DataLabels = true,
                     LabelPoint = point => point.Y.ToString("C0", new CultureInfo("en-US")),
-                    Foreground = Brushes.White
+                    Foreground = Brushes.White,
+                    FontSize = 18, // Increase the font size of the data labels
+                    MaxColumnWidth = 70 // Increase the width of the columns
                 }
             };
+
+            mostTradedCoinsChart.AxisX.First().FontSize = 20; // Increase the font size of the X-axis labels
+            mostTradedCoinsChart.AxisY.First().FontSize = 20;
         }
 
         public List<string> Labels { get; set; }
@@ -94,7 +99,7 @@ namespace WpfApp4
             });
             stopwatch.Start();
             await UpdateChart();
-            //await Task.Delay(3000);
+            await Task.Delay(3000);
             frameCaptureTimer.Stop();
             stopwatch.Stop();
             SaveVideo();

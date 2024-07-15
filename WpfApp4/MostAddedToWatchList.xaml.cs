@@ -78,7 +78,7 @@ namespace WpfApp4
             stopwatch.Start();
             //await UpdateChart();
             await InitializeChartAsync();
-            //await Task.Delay(3000);
+            await Task.Delay(3000);
             capturing = false;
             frameCaptureTimer.Stop();
             stopwatch.Stop();
@@ -98,7 +98,8 @@ namespace WpfApp4
                     Values = new ChartValues<double>(),
                     DataLabels = true,
                     LabelPoint = point => point.X.ToString("N0", new CultureInfo("en-US")),
-                    Foreground = Brushes.White
+                    Foreground = Brushes.White,
+                    FontSize = 20 // Increase the font size of the data labels
                 }
                 //new RowSeries
                 //{
@@ -111,6 +112,9 @@ namespace WpfApp4
             // Set the SeriesCollection and Labels to the chart
             cartesianChart.Series = SeriesCollection;
             cartesianChart.DataContext = this;
+
+            cartesianChart.AxisX.First().FontSize = 20; // Increase the font size of the X-axis labels
+            cartesianChart.AxisY.First().FontSize = 20;
 
             // Retrieve data from your service (assuming GetMostAddedToWatchlistCoins returns a collection of coins)
             var res = MostAddedToWatchListService.GetMostAddedToWatchlistCoins()?.OrderBy(x => x.WatchlistUsers);

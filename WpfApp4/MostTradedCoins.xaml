@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp4"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="MostTradedCoins" Height="1080" Width="1920">
+        Title="MostTradedCoins" Height="960" Width="1700">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -24,7 +24,7 @@
                 </lvc:Axis>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="24h Volume (USD)" LabelFormatter="{Binding Formatter}" />
+                <lvc:Axis LabelFormatter="{Binding Formatter}" />
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
     </Grid>
