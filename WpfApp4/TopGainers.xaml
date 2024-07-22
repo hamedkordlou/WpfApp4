@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp4"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="TopGainers" Height="960" Width="1700">
+        Title="TopGainers" Height="960" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

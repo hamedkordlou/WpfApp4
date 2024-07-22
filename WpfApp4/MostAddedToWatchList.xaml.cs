@@ -96,6 +96,7 @@ namespace WpfApp4
                 {
                     Title = "Number of Added to Watchlist",
                     Values = new ChartValues<double>(),
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FA9729")),
                     DataLabels = true,
                     LabelPoint = point => point.X.ToString("N0", new CultureInfo("en-US")),
                     Foreground = Brushes.White,

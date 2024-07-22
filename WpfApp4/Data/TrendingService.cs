@@ -47,9 +47,12 @@ namespace WpfApp4.Data
             }
         }
 
-        
+        public static CoinTrending GetTrendingCoin(int index)
+        {
+            return trendingCoins[index];
+        }
 
-        public static List<List<List<double>>> GetTrendingCoins()
+        public static List<List<List<double>>> GetTrendingCoinsPrice()
         {
             return prices;
         }

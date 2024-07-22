@@ -64,7 +64,7 @@ namespace WpfApp4
                 {
                     //Title = "24h Volume",
                     Values = values,
-                    //Fill = Brushes.Green,
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6ACF")),
                     DataLabels = true,
                     LabelPoint = point => point.Y.ToString("C0", new CultureInfo("en-US")),
                     Foreground = Brushes.White,

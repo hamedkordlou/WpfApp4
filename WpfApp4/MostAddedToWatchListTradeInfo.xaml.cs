@@ -103,9 +103,11 @@ namespace WpfApp4
                 {
                     Title = "Total Volume (USD)",
                     Values = new ChartValues<decimal>(),
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#12BBBF")),
                     DataLabels = true,
                     Foreground = Brushes.White,
-                    FontSize = 20 // Increase the font size of the data labels
+                    FontSize = 20, // Increase the font size of the data labels,
+                    LabelPoint = point => point.X.ToString("C", CultureInfo.GetCultureInfo("en-US")) // Format as currency
                 }
             };
 

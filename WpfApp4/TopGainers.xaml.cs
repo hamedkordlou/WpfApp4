@@ -64,7 +64,7 @@ namespace WpfApp4
                 {
                     Title = "24h Change",
                     Values = values,
-                    Fill = Brushes.LightGreen,
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2CBF12")),
                     DataLabels = true,
                     LabelPoint = point => $"{point.Y:F2}%",
                     Foreground = Brushes.White,

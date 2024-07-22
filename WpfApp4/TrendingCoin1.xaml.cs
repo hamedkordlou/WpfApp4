@@ -31,6 +31,7 @@ namespace WpfApp4
         private Stopwatch stopwatch;
         private DispatcherTimer frameCaptureTimer;
         private VideoService videoService;
+        private FileService fileService;
         private bool capturing;
         public List<string> XLabels { get; set; } // Add this property for X-axis labels
 
@@ -43,6 +44,7 @@ namespace WpfApp4
             stopwatch = new Stopwatch();
             InitializeFrameCaptureTimer();
             videoService = new VideoService(this.Title);
+            fileService = new FileService(this.Title);
             capturing = true;
 
             XLabels = new List<string>(); // Initialize the XLabels list
@@ -121,7 +123,10 @@ namespace WpfApp4
         private async Task UpdateChart()
         {
 
-            var result = TrendingService.GetTrendingCoins();
+            var result = TrendingService.GetTrendingCoinsPrice();
+            var coin = TrendingService.GetTrendingCoin(0);
+
+            await fileService.SaveCoinDataAsync(coin?.item);
 
             var lineSeries = (LineSeries)cartesianChart.Series[0];
 
@@ -166,5 +171,6 @@ namespace WpfApp4
             MessageBox.Show("Video saved");
             //OpenContainingFolder(_outputFolder);
         }
+
     }
 }

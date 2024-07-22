@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp4"
         mc:Ignorable="d"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        Title="MostVolatileCoins" Height="960" Width="1700">
+        Title="MostVolatileCoins" Height="960" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

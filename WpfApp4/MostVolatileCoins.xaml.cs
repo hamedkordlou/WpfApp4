@@ -96,7 +96,9 @@ namespace WpfApp4
                 {
                     //Title = "Price Change in 24h (%)",
                     Values = new ChartValues<double>(),
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#676DFF")),
                     DataLabels = true,
+                    LabelPoint = point => $"{point.X}%",
                     Foreground = Brushes.White,
                     FontSize = 20 // Increase the font size of the data labels
                 }

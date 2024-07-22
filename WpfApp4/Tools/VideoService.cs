@@ -46,6 +46,9 @@ namespace WpfApp4.Tools
 
             var process = Process.Start(startInfo);
             process.WaitForExit();
+
+            // Delete the frames after the video is created
+            DeleteFrames();
         }
 
         private void SaveBitmapSource(BitmapSource bitmapSource, string filePath)
@@ -55,6 +58,15 @@ namespace WpfApp4.Tools
                 var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
                 encoder.Save(fileStream);
+            }
+        }
+
+        private void DeleteFrames()
+        {
+            var files = Directory.GetFiles(_outputFolder, "frame_*.png");
+            foreach (var file in files)
+            {
+                File.Delete(file);
             }
         }
     }
