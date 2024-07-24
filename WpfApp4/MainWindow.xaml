@@ -24,6 +24,7 @@
             <Button Content="Most Added To WatchList" Click="MostAddedToWatchList_Click"/>
             <Button Content="Most Added To WatchList Trade Info" Click="MostAddedToWatchListTradeInfo_Click"/>
             <Button Content="MostVolatileCoins" Click="MostVolatileCoins_Click"/>
+            <Button Content="Render" Click="Render_Click"/>
         </UniformGrid>
         <ProgressBar Name="progressBar" Grid.Row="1" Height="20" Margin="10" Minimum="0" Maximum="100" Visibility="Collapsed"/>
     </Grid>

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WpfApp4.Data;
+using WpfApp4.Tools;
 
 namespace WpfApp4
 {
@@ -196,6 +197,25 @@ namespace WpfApp4
                 MostVolatileCoins mostVolatileCoins = new MostVolatileCoins();
                 mostVolatileCoins.Show();
             }
+        }
+
+        private async void Render_Click(object sender, RoutedEventArgs e)
+        {
+            // Show the output window
+            var outputWindow = new OutputWindow();
+            outputWindow.Show();
+
+            // Update the FileService to use the new output window instance
+            var fileService = new FileService(outputWindow);
+
+            // Show progress
+            progressBar.Visibility = Visibility.Visible;
+
+            await Task.Run(async () =>
+            {
+                await fileService.RenderScriptsInFolderAsync();
+                Dispatcher.Invoke(() => progressBar.Visibility = Visibility.Collapsed);
+            });
         }
     }
 }
