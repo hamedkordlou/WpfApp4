@@ -20,6 +20,7 @@ namespace WpfApp4.Tools
         private readonly string _scriptsFolderPath;
         private readonly string _afterEffectsPath;
         private OutputWindow _outputWindow;
+        private readonly Action<int> _updateProgress;
 
         public FileService()
         {
@@ -33,11 +34,12 @@ namespace WpfApp4.Tools
             Directory.CreateDirectory(_outputFolder);
         }
 
-        public FileService(OutputWindow outputWindow)
+        public FileService(OutputWindow outputWindow, Action<int> updateProgress)
         {
             _afterEffectsPath = @"C:\Program Files\Adobe\Adobe After Effects 2024\Support Files\aerender.exe";
             _scriptsFolderPath = @"C:\Users\hamed\Documents\Work\Personal\Crypto\Templates\Data Scene";
             _outputWindow = outputWindow;
+            _updateProgress = updateProgress;
         }
 
 
@@ -83,18 +85,24 @@ namespace WpfApp4.Tools
             }
 
             string[] scriptFiles = Directory.GetFiles(_scriptsFolderPath, "*.aep");
+            int totalFiles = scriptFiles.Length;
 
-            foreach (var scriptPath in scriptFiles)
+            for (int i = 0; i < totalFiles; i++)
             {
+                string scriptPath = scriptFiles[i];
+                _updateProgress?.Invoke((i + 1) * 100 / totalFiles);
                 await RenderScriptAsync(scriptPath);
             }
 
+            _updateProgress?.Invoke(100); // Ensure progress bar shows 100% upon completion
             _outputWindow.AppendOutput("All scripts have been rendered.");
         }
 
         private async Task RenderScriptAsync(string scriptPath)
         {
             var projectName = Path.GetFileNameWithoutExtension(scriptPath);
+
+            _outputWindow.SetFileTitle(projectName);
 
             var startInfo = new ProcessStartInfo
             {
@@ -128,15 +136,36 @@ namespace WpfApp4.Tools
 
                 process.Exited += (sender, args) =>
                 {
-                    tcs.SetResult(true);
+                    // Set result only if the task hasn't been completed already
+                    if (!tcs.Task.IsCompleted)
+                    {
+                        tcs.SetResult(true);
+                    }
                     process.Dispose();
                 };
+
+                
+
+                // Ensure Exited event is subscribed to
+                process.EnableRaisingEvents = true;
 
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
 
-                await tcs.Task;
+                //// Optional: Add a timeout to prevent hanging indefinitely
+                //var timeoutTask = Task.Delay(TimeSpan.FromMinutes(5)); // Adjust timeout as needed
+                //var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+                //if (completedTask == timeoutTask)
+                //{
+                //    // Handle timeout (e.g., process didn't exit in time)
+                //    throw new TimeoutException("The process took too long to exit.");
+                //}
+
+                //await tcs.Task;
+                await process.WaitForExitAsync();
+
             }
         }
     }

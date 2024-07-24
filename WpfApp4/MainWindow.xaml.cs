@@ -206,7 +206,7 @@ namespace WpfApp4
             outputWindow.Show();
 
             // Update the FileService to use the new output window instance
-            var fileService = new FileService(outputWindow);
+            var fileService = new FileService(outputWindow, UpdateProgressBarAction);
 
             // Show progress
             progressBar.Visibility = Visibility.Visible;
@@ -216,6 +216,11 @@ namespace WpfApp4
                 await fileService.RenderScriptsInFolderAsync();
                 Dispatcher.Invoke(() => progressBar.Visibility = Visibility.Collapsed);
             });
+        }
+
+        private void UpdateProgressBarAction(int percentage)
+        {
+            Dispatcher.Invoke(() => progressBar.Value = percentage);
         }
     }
 }

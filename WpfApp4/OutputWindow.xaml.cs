@@ -32,5 +32,13 @@ namespace WpfApp4
                 OutputTextBox.ScrollToEnd();
             });
         }
+
+        public void SetFileTitle(string fileName)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                FileTitleTextBlock.Text = $"Processing: {fileName}";
+            });
+        }
     }
 }
