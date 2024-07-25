@@ -11,7 +11,7 @@ namespace WpfApp4.Data
         public static List<MostVolatile> mostVolatile = new List<MostVolatile>();
         public static async Task InitializeDataAsync(int topN = 10)
         {
-            mostVolatile = await LocalDataBaseService.GetMostVolatileCoins(topN);
+            mostVolatile = await new LocalDataBaseService().GetMostVolatileCoins(topN);
         }
 
         public static List<MostVolatile> GetMostVolatileCoins()

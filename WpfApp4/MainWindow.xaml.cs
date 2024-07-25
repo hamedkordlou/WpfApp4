@@ -54,14 +54,14 @@ namespace WpfApp4
 
             await Task.Run(async () =>
             {
-                //await TopGainersService.InitializeDataAsync();
-                //UpdateProgressBar(20);
+                await TopGainersService.InitializeDataAsync();
+                UpdateProgressBar(20);
 
-                //await TrendingService.InitializeDataAsync();
-                //UpdateProgressBar(40);
+                await TrendingService.InitializeDataAsync();
+                UpdateProgressBar(40);
 
-                //await MostTradedCoinService.InitializeDataAsync();
-                //UpdateProgressBar(60);
+                await MostTradedCoinService.InitializeDataAsync();
+                UpdateProgressBar(60);
 
                 await MostAddedToWatchListService.InitializeDataAsync();
                 UpdateProgressBar(80);
@@ -221,6 +221,13 @@ namespace WpfApp4
         private void UpdateProgressBarAction(int percentage)
         {
             Dispatcher.Invoke(() => progressBar.Value = percentage);
+        }
+
+        private async void CollectAllCoinsFromAPI_Click(object sender, RoutedEventArgs e)
+        {
+            var progressWindow = new CoinProgressWindow();
+            progressWindow.Show();
+            await progressWindow.InitializeLocalDatabaseAsync();
         }
     }
 }

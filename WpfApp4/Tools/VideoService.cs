@@ -12,6 +12,7 @@ namespace WpfApp4.Tools
     public class VideoService
     {
         private string _outputFolder;
+        private const int FrameRate = 30; // frames per second
 
         public VideoService(string windowName)
         {
@@ -19,12 +20,17 @@ namespace WpfApp4.Tools
             Directory.CreateDirectory(_outputFolder);
         }
 
-        public void SaveFrames(List<BitmapSource> frames)
+        public void SaveFrames(List<BitmapSource> frames, int lengthInSeconds)
         {
-            for (int i = 0; i < frames.Count; i++)
+            int totalFrames = lengthInSeconds * FrameRate;
+            int frameCount = frames.Count;
+
+            for (int i = 0; i < totalFrames; i++)
             {
+                // Repeat the last frame if i exceeds the original frame count
+                BitmapSource frame = frames[Math.Min(i, frameCount - 1)];
                 string filePath = Path.Combine(_outputFolder, $"frame_{i:D4}.png");
-                SaveBitmapSource(frames[i], filePath);
+                SaveBitmapSource(frame, filePath);
             }
         }
 
@@ -33,7 +39,7 @@ namespace WpfApp4.Tools
             string ffmpegPath = "ffmpeg";
             string outputVideo = Path.Combine(_outputFolder, $"{windowName}.mp4");
             string inputPattern = Path.Combine(_outputFolder, "frame_%04d.png");
-            string arguments = $"-r 30 -f image2 -i {inputPattern} -vcodec libx264 -crf 18 -pix_fmt yuv420p {outputVideo}";
+            string arguments = $"-y -r {FrameRate} -f image2 -i {inputPattern} -vcodec libx264 -crf 18 -pix_fmt yuv420p {outputVideo}";
 
             var startInfo = new ProcessStartInfo
             {

@@ -11,7 +11,7 @@ namespace WpfApp4.Data
         public static List<MostWatched> mostWatched = new List<MostWatched>();
         public static async Task InitializeDataAsync(int topN = 10)
         {
-            mostWatched = await LocalDataBaseService.GetMostAddedToWatchlistCoins(topN);
+            mostWatched = await new LocalDataBaseService().GetMostAddedToWatchlistCoins(topN);
         }
 
         public static List<MostWatched> GetMostAddedToWatchlistCoins()

@@ -143,7 +143,7 @@ namespace WpfApp4
 
         private void SaveVideo()
         {
-            videoService.SaveFrames(frames);
+            videoService.SaveFrames(frames, 31);
             videoService.CreateVideo(this.Title);
             MessageBox.Show("Video saved");
             //OpenContainingFolder(_outputFolder);

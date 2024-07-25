@@ -10,6 +10,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Diagnostics;
+using System.Windows.Controls;
 
 namespace WpfApp4.Data
 {
@@ -46,77 +48,176 @@ namespace WpfApp4.Data
 
     public class LocalDataBaseService
     {
-        private static readonly HttpClient client = new HttpClient();
-        private static readonly IMongoDatabase database;
+        private readonly HttpClient client = new HttpClient();
+        private readonly IMongoDatabase database;
+        private readonly Action<string> logAction;
+        private readonly Action<int, int, string, int> updateProgress;
 
-        static LocalDataBaseService()
+        private long tempCoinCountInDB = 0;
+
+        public LocalDataBaseService()
         {
             var client = new MongoClient("mongodb://localhost:27017");
             database = client.GetDatabase("crypto_data");
         }
 
-        private static async Task<List<LocalCoin>> GetAllCoins()
+        public LocalDataBaseService(Action<string> logAction, Action<int, int, string, int> updateProgress)
         {
-            var response = await client.GetStringAsync("https://pro-api.coingecko.com/api/v3/coins/list?status=active&x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum");
+            var client = new MongoClient("mongodb://localhost:27017");
+            database = client.GetDatabase("crypto_data");
+            this.logAction = logAction;
+            this.updateProgress = updateProgress;
+        }
+
+        private async Task<long> GetCoinCount()
+        {
+            var collection = database.GetCollection<BsonDocument>("coins");
+            return await collection.CountDocumentsAsync(new BsonDocument());
+        }
+
+        private async Task<List<LocalCoin>> GetAllCoins()
+        {
+            var response = await client.GetStringAsync("https://api.coingecko.com/api/v3/coins/list");
             return JsonConvert.DeserializeObject<List<LocalCoin>>(response);
         }
 
-        private static async Task SaveCoinData(string coinId)
+        private async Task SaveCoinDataWithRetry(string coinId, int index, int totalCoins, int maxRetries = 5)
         {
-
-            var response = await client.GetStringAsync($"https://pro-api.coingecko.com/api/v3/coins/{coinId}?x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum");
-
-            Console.WriteLine($"Trying coin: {coinId}");
-            var coinData = BsonDocument.Parse(response);
-
-            var collection = database.GetCollection<BsonDocument>("coins");
-            await collection.InsertOneAsync(coinData);
-
-            Console.WriteLine($"Saved data for coin: {coinId}");
+            int retries = 0;
+            while (retries < maxRetries)
+            {
+                try
+                {
+                    await SaveCoinDataIfNotExists(coinId);
+                    tempCoinCountInDB++;
+                    //updateProgress(index, totalCoins, coinId, retries);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(((double)tempCoinCountInDB / totalCoins) * 100 + " %");
+                    return; // Exit if successful
+                }
+                catch (Exception ex)
+                {
+                    retries++;
+                    //logAction($"Error saving data for coin {coinId}: {ex.Message}. Retry {retries}/{maxRetries}.");
+                    await Task.Delay(1000); // Wait for a second before retrying
+                }
+            }
+            //logAction($"Failed to save data for coin {coinId} after {maxRetries} retries.");
+            updateProgress(index, totalCoins, coinId, retries);
         }
 
-        private static async Task SaveCoinDataIfNotExists(string coinId)
+        private async Task SaveCoinDataIfNotExists(string coinId)
         {
+            
             var collection = database.GetCollection<BsonDocument>("coins");
 
             // Check if the coin already exists in the database
             var filter = Builders<BsonDocument>.Filter.Eq("id", coinId);
+
             var existingCoin = await collection.Find(filter).FirstOrDefaultAsync();
 
             if (existingCoin == null)
             {
+                //logAction($"{coinId}: Not existed in db");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"Trying coin: {coinId}");
                 var response = await client.GetStringAsync($"https://pro-api.coingecko.com/api/v3/coins/{coinId}?x_cg_pro_api_key=CG-eyrEeYZTJcaC7skRKaAmSwum");
 
-                Console.WriteLine($"Trying coin: {coinId}");
                 var coinData = BsonDocument.Parse(response);
 
-                await collection.InsertOneAsync(coinData);
+                try
+                {
+                    await collection.InsertOneAsync(coinData);
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+
+                //logAction($"Saved data for coin: {coinId}");
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Saved data for coin: {coinId}");
             }
             else
             {
-                Console.WriteLine($"Coin data for {coinId} already exists in the database.");
+                //logAction($"Coin data for {coinId} already exists in the database.");
             }
         }
 
 
-        public async Task initializeLocalDatabaseAsync()
+        public async Task InitializeLocalDatabaseAsync()
         {
-            var coinList = await GetAllCoins();
-            var tasks = new List<Task>();
+            var collection = database.GetCollection<BsonDocument>("coins");
 
-            foreach (var coin in coinList)
+            // Clean data from the database if necessary
+            // var deleteResult = await collection.DeleteManyAsync(new BsonDocument());
+            // await collection.Database.DropCollectionAsync("coins");
+            // await database.Client.DropDatabaseAsync(database.DatabaseNamespace.DatabaseName);
+            // Console.WriteLine("Cleaned all data from the database.");
+
+            // Get all coins list from API
+            var coinList = await GetAllCoins();
+            var totalCoins = coinList.Count;
+
+            Console.WriteLine($"Coins count is {totalCoins}");
+
+            var tempCoinCountInDB = await GetCoinCount();
+            Console.WriteLine($"Coins count in DB {tempCoinCountInDB}");
+
+            // Loop until the number of coins in the database matches the total number of coins from the API
+            while (tempCoinCountInDB < totalCoins)
             {
-                //tasks.Add(SaveCoinData(coin.Id));
-                tasks.Add(SaveCoinDataIfNotExists(coin.Id));
+                // Process coins in batches of 500
+                var batchSize = 500;
+                for (int i = 0; i < totalCoins; i += batchSize)
+                {
+                    var end = Math.Min(i + batchSize, totalCoins);
+                    var tasks = new List<Task>();
+
+                    // Measure time taken for processing the current batch
+                    var stopwatch = Stopwatch.StartNew();
+
+                    for (int j = i; j < end; j++)
+                    {
+                        var coin = coinList[j];
+                        tasks.Add(SaveCoinDataWithRetry(coin.Id, j, totalCoins));
+                    }
+
+                    await Task.WhenAll(tasks);
+
+                    stopwatch.Stop();
+                    var elapsed = stopwatch.Elapsed;
+
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Processed coins {i + 1} to {end} in {elapsed.TotalSeconds} seconds.");
+                    logAction($"Processed coins {i + 1} to {end} in {elapsed.TotalSeconds} seconds.");
+
+                    // Calculate the remaining time to wait to make the batch duration exactly 1 minute
+                    //var waitTime = TimeSpan.FromMinutes(1) - elapsed;
+                    //if (waitTime > TimeSpan.Zero)
+                    //{
+                    //    Console.WriteLine($"Waiting for {waitTime.TotalSeconds} seconds to complete 1 minute.");
+                    //    await Task.Delay(waitTime);
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine("Batch processing took longer than 1 minute.");
+                    //}
+
+                    // Update coin count in database after processing
+                    tempCoinCountInDB = await GetCoinCount();
+                    Console.WriteLine($"Coins count in DB after batch processing: {tempCoinCountInDB}");
+                }
             }
 
-            await Task.WhenAll(tasks);
-
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("All coin data has been saved to the database.");
+            logAction("All coin data has been saved to the database.");
         }
 
-        public static async Task<List<MostTradedCoin>> GetMostTradedCoins(int topN = 10)
+
+        public async Task<List<MostTradedCoin>> GetMostTradedCoins(int topN = 10)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -149,7 +250,7 @@ namespace WpfApp4.Data
             return mostTradedCoins;
         }
 
-        public static async Task<List<MostWatched>> GetMostAddedToWatchlistCoins(int topCount = 30)
+        public async Task<List<MostWatched>> GetMostAddedToWatchlistCoins(int topCount = 30)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -182,7 +283,7 @@ namespace WpfApp4.Data
             return mostAddedToWatchlistCoins;
         }
 
-        public static async Task<List<MostVolatile>> GetMostVolatileCoins(int topCount = 10)
+        public async Task<List<MostVolatile>> GetMostVolatileCoins(int topCount = 10)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -208,7 +309,7 @@ namespace WpfApp4.Data
         }
 
 
-        public static async Task PrintTopByROI(int topN = 10)
+        public async Task PrintTopByROI(int topN = 10)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -244,7 +345,7 @@ namespace WpfApp4.Data
             }
         }
 
-        public static async Task PrintCountOfCoinsAddedSinceLastNDays(int N)
+        public async Task PrintCountOfCoinsAddedSinceLastNDays(int N)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -259,7 +360,7 @@ namespace WpfApp4.Data
             Console.WriteLine($"Number of coins added since {sevenDaysAgo.ToShortDateString()}: {recentCoinsCount}");
         }
 
-        public static async Task PrintMostRecentCoin()
+        public async Task PrintMostRecentCoin()
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -282,7 +383,7 @@ namespace WpfApp4.Data
         }
 
 
-        public static async Task SelectCoinsWithATHCloseToCurrentPrice(decimal thresholdPercentage = 5)
+        public async Task SelectCoinsWithATHCloseToCurrentPrice(decimal thresholdPercentage = 5)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -322,7 +423,7 @@ namespace WpfApp4.Data
         }
 
 
-        public static async Task GetTop10PositiveSentimentCoins()
+        public async Task GetTop10PositiveSentimentCoins()
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -351,7 +452,7 @@ namespace WpfApp4.Data
             }
         }
 
-        public static async Task GetTop10NegativeSentimentCoins()
+        public async Task GetTop10NegativeSentimentCoins()
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -380,7 +481,7 @@ namespace WpfApp4.Data
             }
         }
 
-        public static async Task PrintCountOf100PercentSentimentUpVotes()
+        public async Task PrintCountOf100PercentSentimentUpVotes()
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -397,7 +498,7 @@ namespace WpfApp4.Data
             Console.WriteLine($"Count of coins with 100% sentiment up votes: {count100PercentSentimentUpVotes}");
         }
 
-        public static async Task PrintCoinsWith100PercentSentimentUpVotes()
+        public async Task PrintCoinsWith100PercentSentimentUpVotes()
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 
@@ -416,7 +517,7 @@ namespace WpfApp4.Data
             
         }
 
-        public static async Task<List<MostWatched>> PrintMostAddedToWatchlistCoins(int topCount = 30)
+        public async Task<List<MostWatched>> PrintMostAddedToWatchlistCoins(int topCount = 30)
         {
             var collection = database.GetCollection<BsonDocument>("coins");
 

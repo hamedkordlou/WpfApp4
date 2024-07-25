@@ -11,7 +11,7 @@ namespace WpfApp4.Data
         public static List<MostTradedCoin> mostTraded = new List<MostTradedCoin>();
         public static async Task InitializeDataAsync(int topN = 10)
         {
-            mostTraded = await LocalDataBaseService.GetMostTradedCoins(topN);
+            mostTraded = await new LocalDataBaseService().GetMostTradedCoins(topN);
         }
 
         public static List<MostTradedCoin> GetMostTradedCoins()

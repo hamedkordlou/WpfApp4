@@ -1,0 +1,21 @@
+﻿<Window x:Class="WpfApp4.CoinProgressWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp4"
+        mc:Ignorable="d"
+        Title="CoinProgressWindow" Height="600" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="30" Margin="10" Grid.Row="0"/>
+        <!--<TextBox x:Name="statusTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="100" Margin="10" IsReadOnly="True" TextWrapping="Wrap"/>-->
+        <TextBox Name="statusTextBox" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+                 IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                 HorizontalScrollBarVisibility="Auto" Margin="5" 
+                 TextWrapping="Wrap" Grid.Row="1"/>
+    </Grid>
+</Window>

@@ -12,6 +12,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <UniformGrid Columns="3">
+            <Button Content="Collect All Coins From API" Click="CollectAllCoinsFromAPI_Click"/>
             <Button Content="Fetch Data" Click="FetchData_Click"/>
             <Button Content="Top Gainers" Click="TopGainers_Click"/>
             <Button Content="Top Losers" Click="TopLosers_Click"/>
